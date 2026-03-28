@@ -24,28 +24,28 @@ def test_monthly_payment_known_value():
     """$300k loan, 7%, 30yr → should be ~$1,995.91"""
     pmt = monthly_mortgage_payment(300_000, 0.07, 30)
     assert abs(pmt - 1995.91) < 1.0, f"Expected ~1995.91, got {pmt:.2f}"
-    print(f"  ✓ Monthly payment: ${pmt:,.2f}")
+    print(f"  [OK] Monthly payment: ${pmt:,.2f}")
 
 
 def test_monthly_payment_zero_rate():
     """0% interest → simple division."""
     pmt = monthly_mortgage_payment(360_000, 0.0, 30)
     assert abs(pmt - 1000.0) < 0.01, f"Expected 1000.0, got {pmt:.2f}"
-    print(f"  ✓ Zero-rate payment: ${pmt:,.2f}")
+    print(f"  [OK] Zero-rate payment: ${pmt:,.2f}")
 
 
 def test_balance_after_full_term():
     """Balance should be ~0 after full term."""
     bal = mortgage_balance_after(300_000, 0.07, 30, 360)
     assert abs(bal) < 1.0, f"Expected ~0, got {bal:.2f}"
-    print(f"  ✓ Balance after 360 months: ${bal:,.2f}")
+    print(f"  [OK] Balance after 360 months: ${bal:,.2f}")
 
 
 def test_balance_after_zero_months():
     """Balance at month 0 = full principal."""
     bal = mortgage_balance_after(300_000, 0.07, 30, 0)
     assert abs(bal - 300_000) < 1.0, f"Expected 300000, got {bal:.2f}"
-    print(f"  ✓ Balance at month 0: ${bal:,.2f}")
+    print(f"  [OK] Balance at month 0: ${bal:,.2f}")
 
 
 def test_balance_decreases_over_time():
@@ -53,7 +53,7 @@ def test_balance_decreases_over_time():
     balances = [mortgage_balance_after(300_000, 0.07, 30, m) for m in range(0, 361, 12)]
     for i in range(1, len(balances)):
         assert balances[i] < balances[i - 1], f"Balance did not decrease at year {i}"
-    print(f"  ✓ Balance decreases: ${balances[0]:,.0f} → ${balances[-1]:,.0f}")
+    print(f"  [OK] Balance decreases: ${balances[0]:,.0f} -> ${balances[-1]:,.0f}")
 
 
 # ──────────────────────────────────────────────
@@ -76,8 +76,8 @@ def test_simulation_runs():
     assert results.rent_wealth.shape == (1_000,)
     assert 0 <= results.buy_wins_pct <= 100
     assert results.yearly_buy_median.shape == (10,)
-    assert len(results.sensitivity) == 4
-    print(f"  ✓ Simulation ran: buy wins {results.buy_wins_pct:.1f}% of the time")
+    assert len(results.sensitivity) == 3
+    print(f"  [OK] Simulation ran: buy wins {results.buy_wins_pct:.1f}% of the time")
     print(f"    Median buy wealth:  ${results.median_buy:,.0f}")
     print(f"    Median rent wealth: ${results.median_rent:,.0f}")
     print(f"    Breakeven year:     {results.breakeven_year}")
@@ -99,7 +99,7 @@ def test_simulation_short_horizon():
     assert results.buy_wins_pct < 50, (
         f"Expected buy to lose short-term, but it won {results.buy_wins_pct:.1f}%"
     )
-    print(f"  ✓ Short horizon: buy wins only {results.buy_wins_pct:.1f}% (expected < 50%)")
+    print(f"  [OK] Short horizon: buy wins only {results.buy_wins_pct:.1f}% (expected < 50%)")
 
 
 def test_simulation_long_horizon():
@@ -116,7 +116,7 @@ def test_simulation_long_horizon():
     assert results.buy_wins_pct > 50, (
         f"Expected buy to win long-term, but only {results.buy_wins_pct:.1f}%"
     )
-    print(f"  ✓ Long horizon: buy wins {results.buy_wins_pct:.1f}% (expected > 50%)")
+    print(f"  [OK] Long horizon: buy wins {results.buy_wins_pct:.1f}% (expected > 50%)")
 
 
 def test_sensitivity_has_expected_keys():
@@ -130,9 +130,9 @@ def test_sensitivity_has_expected_keys():
         n_simulations=500,
     )
     results = run_simulation(inputs)
-    expected_keys = {"home_appreciation", "rent_inflation", "stock_returns", "maintenance_costs"}
+    expected_keys = {"home_appreciation", "rent_inflation", "maintenance_costs"}
     assert set(results.sensitivity.keys()) == expected_keys
-    print(f"  ✓ Sensitivity keys present: {list(results.sensitivity.keys())}")
+    print(f"  [OK] Sensitivity keys present: {list(results.sensitivity.keys())}")
 
 
 # ──────────────────────────────────────────────
@@ -146,7 +146,7 @@ def test_city_data():
     sc = get_city("state_college_pa")
     assert sc["median_home_price"] > 0
     assert sc["median_rent"] > 0
-    print(f"  ✓ {len(cities)} cities loaded. State College: ${sc['median_home_price']:,} / ${sc['median_rent']:,}/mo")
+    print(f"  [OK] {len(cities)} cities loaded. State College: ${sc['median_home_price']:,} / ${sc['median_rent']:,}/mo")
 
 
 # ──────────────────────────────────────────────
@@ -168,7 +168,7 @@ def test_city_to_engine():
     )
     results = run_simulation(inputs)
     assert results.buy_wealth.shape == (1_000,)
-    print(f"  ✓ State College sim: buy wins {results.buy_wins_pct:.1f}%")
+    print(f"  [OK] State College sim: buy wins {results.buy_wins_pct:.1f}%")
     print(f"    Median advantage: ${results.median_buy - results.median_rent:,.0f}")
 
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
             t()
             passed += 1
         except Exception as e:
-            print(f"  ✗ FAILED: {e}")
+            print(f"  [FAIL] FAILED: {e}")
             failed += 1
 
     print(f"\n{'='*50}")
