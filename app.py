@@ -516,20 +516,11 @@ with st.sidebar:
 
     mortgage_term = st.selectbox("Mortgage Term", [15, 30], index=1)
 
-    if selected_city_key != "custom":
-        override_rent = st.checkbox("Override city rent?", value=False)
-        monthly_rent_input = st.number_input(
-            "Monthly Rent ($)", min_value=200, max_value=20_000,
-            value=default_rent, step=100,
-            disabled=not override_rent,
-            help="City mode uses the preset median unless you override it."
-        )
-    else:
-        override_rent = True
-        monthly_rent_input = st.number_input(
-            "Monthly Rent ($)", min_value=200, max_value=20_000,
-            value=default_rent, step=100,
-        )
+    monthly_rent_input = st.number_input(
+        "Monthly Rent ($)", min_value=200, max_value=20_000,
+        value=default_rent, step=100,
+        help="City mode will use this instead of the preset median."
+    )
 
     st.markdown("**What will you do with the savings?**")
     strategy_label = st.selectbox(
@@ -735,7 +726,7 @@ if run_button:
                 time_horizon_years=time_horizon,
                 distributions=dist,
                 invest_surplus=invest_flag,
-                monthly_rent_override=monthly_rent_input if override_rent else None,
+                monthly_rent_override=monthly_rent_input,
             )
         else:
             results = run_custom(
