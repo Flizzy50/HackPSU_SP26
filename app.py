@@ -17,218 +17,459 @@ st.set_page_config(page_title="RentOrOwn", page_icon="🏠", layout="wide")
 # ── Custom CSS ──
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-    /* Global */
+    /* ── Global ── */
     .stApp {
-        background: linear-gradient(160deg, #0a0a0f 0%, #0d1117 40%, #0f1923 100%);
+        background: #f8f9fb;
     }
-
-    /* Remove default padding */
     .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        max-width: 1200px;
     }
 
-    /* Typography */
-    h1, h2, h3, .stMetricLabel, .stMetricValue {
-        font-family: 'DM Sans', sans-serif !important;
+    /* ── Typography ── */
+    h1, h2, h3, h4, p, span, label, div {
+        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-
-    /* Hero title */
     h1 {
-        font-size: 3.2rem !important;
+        font-family: 'IBM Plex Sans', -apple-system, sans-serif !important;
+        font-size: 2rem !important;
         font-weight: 700 !important;
-        background: linear-gradient(135deg, #00d2ff, #7b61ff, #ff6b6b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: -1px;
+        color: #0f2b46 !important;
+        letter-spacing: -0.5px;
         margin-bottom: 0 !important;
     }
+    .block-container h1 {
+        border-bottom: 3px solid #e8590c;
+        display: inline-block;
+        padding-bottom: 4px;
+    }
+    h2 {
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        color: #0f2b46 !important;
+        letter-spacing: -0.3px;
+        text-transform: uppercase;
+        border-left: 4px solid #e8590c;
+        padding-left: 12px;
+        margin-top: 0.5rem !important;
+    }
+    h3 {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        color: #1a3a5c !important;
+    }
 
-    /* Subtitle styling */
+    /* ── Subtitle ── */
     .subtitle {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.15rem;
-        color: #8b949e;
-        margin-top: -0.5rem;
-        margin-bottom: 2rem;
-        letter-spacing: 0.3px;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.95rem;
+        color: #5a6f85;
+        margin-top: 2px;
+        margin-bottom: 1.5rem;
     }
 
-    /* Metric cards */
-    [data-testid="stMetric"] {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        padding: 1.2rem 1.4rem;
-        backdrop-filter: blur(10px);
-        transition: border-color 0.3s ease;
+    /* ── City badge ── */
+    .city-badge {
+        display: inline-block;
+        background: #0f2b46;
+        color: #ffffff;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
     }
-    [data-testid="stMetric"]:hover {
-        border-color: rgba(0, 210, 255, 0.3);
+    .city-badge .accent {
+        color: #e8590c;
+    }
+
+    /* ── Metric cards ── */
+    [data-testid="stMetric"] {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-top: 3px solid #0f2b46;
+        border-radius: 2px;
+        padding: 1rem 1.2rem;
     }
     [data-testid="stMetricLabel"] {
-        font-size: 0.8rem !important;
-        color: #8b949e !important;
+        font-family: 'IBM Plex Sans', sans-serif !important;
+        font-size: 0.7rem !important;
+        font-weight: 600 !important;
+        color: #5a6f85 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+    }
+    [data-testid="stMetricValue"] {
+        font-family: 'IBM Plex Mono', monospace !important;
+        font-size: 1.6rem !important;
+        font-weight: 600 !important;
+        color: #0f2b46 !important;
+    }
+
+    /* ── Sidebar ── */
+    [data-testid="stSidebar"] {
+        background: #0f2b46;
+        border-right: none;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 1rem;
+    }
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: #ffffff !important;
+        border: none;
+        padding-left: 0;
+        margin-top: 0 !important;
+    }
+    [data-testid="stSidebar"] label {
+        font-family: 'IBM Plex Sans', sans-serif !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        color: rgba(255,255,255,0.6) !important;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    [data-testid="stMetricValue"] {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 1.8rem !important;
-        color: #e6edf3 !important;
+    [data-testid="stSidebar"] .stSelectbox > div > div,
+    [data-testid="stSidebar"] .stNumberInput input {
+        background: rgba(255,255,255,0.08) !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.15) !important;
+    }
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span {
+        color: rgba(255,255,255,0.7) !important;
+    }
+    /* Slider thumb + track */
+    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"] {
+        background: #e8590c !important;
+    }
+    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMin"],
+    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMax"] {
+        color: rgba(255,255,255,0.4) !important;
+    }
+    .stSlider [data-baseweb="slider"] div[role="slider"] {
+        background: #e8590c !important;
     }
 
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: rgba(13, 17, 23, 0.95);
-        border-right: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    [data-testid="stSidebar"] .stSelectbox label,
-    [data-testid="stSidebar"] .stNumberInput label,
-    [data-testid="stSidebar"] .stSlider label {
-        font-family: 'DM Sans', sans-serif !important;
-        font-size: 0.85rem !important;
-        color: #8b949e !important;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }
-
-    /* Button */
+    /* ── Button ── */
     .stButton > button {
-        background: linear-gradient(135deg, #00d2ff, #7b61ff) !important;
-        color: white !important;
+        background: #e8590c !important;
+        color: #ffffff !important;
         border: none !important;
-        border-radius: 12px !important;
-        font-family: 'DM Sans', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        padding: 0.8rem 1.5rem !important;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2) !important;
-    }
-    .stButton > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 25px rgba(0, 210, 255, 0.35) !important;
-    }
-
-    /* Dividers */
-    hr {
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        margin: 1.5rem 0 !important;
-    }
-
-    /* Section headers */
-    h2 {
-        font-size: 1.8rem !important;
-        color: #e6edf3 !important;
-        letter-spacing: -0.5px;
-    }
-    h3 {
-        font-size: 1.2rem !important;
-        color: #c9d1d9 !important;
-    }
-    h4 {
-        color: #8b949e !important;
+        border-radius: 4px !important;
+        font-family: 'IBM Plex Sans', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        padding: 0.75rem 1.5rem !important;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        font-size: 0.85rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        background: #c84a0a !important;
     }
 
-    /* Captions */
-    .stCaption {
-        color: #484f58 !important;
-        font-family: 'DM Sans', sans-serif !important;
+    /* ── Dividers ── */
+    hr {
+        border-color: #e1e5eb !important;
+        margin: 1rem 0 !important;
     }
 
-    /* City cards on landing page */
-    .city-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 1rem 1.2rem;
-        margin-bottom: 0.8rem;
-        transition: all 0.3s ease;
-    }
-    .city-card:hover {
-        border-color: rgba(0, 210, 255, 0.3);
-        transform: translateY(-2px);
-    }
-    .city-name {
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 600;
-        color: #e6edf3;
-        font-size: 1rem;
-        margin-bottom: 4px;
-    }
-    .city-price {
-        font-family: 'JetBrains Mono', monospace;
-        color: #8b949e;
-        font-size: 0.85rem;
+    /* ── Plotly containers ── */
+    [data-testid="stPlotlyChart"] {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-radius: 2px;
+        padding: 0.3rem;
     }
 
-    /* How it works cards */
+    /* ── Summary box ── */
+    .summary-box {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-left: 4px solid #e8590c;
+        padding: 1.2rem 1.4rem;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: #1a3a5c;
+    }
+
+    /* ── Landing: steps ── */
     .step-number {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 2.5rem;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 2.2rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #00d2ff, #7b61ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #e8590c;
         line-height: 1;
-        margin-bottom: 0.5rem;
+        margin-bottom: 6px;
     }
     .step-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #e6edf3;
-        margin-bottom: 0.3rem;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f2b46;
+        margin-bottom: 4px;
     }
     .step-desc {
-        font-family: 'DM Sans', sans-serif;
-        color: #8b949e;
-        font-size: 0.95rem;
+        font-family: 'IBM Plex Sans', sans-serif;
+        color: #5a6f85;
+        font-size: 0.9rem;
         line-height: 1.5;
     }
 
-    /* Plotly chart containers */
-    [data-testid="stPlotlyChart"] {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 16px;
-        padding: 0.5rem;
+    /* ── City cards ── */
+    .city-card {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-radius: 2px;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.6rem;
+        transition: border-color 0.2s ease;
+    }
+    .city-card:hover {
+        border-left: 3px solid #e8590c;
+    }
+    .city-name {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-weight: 600;
+        color: #0f2b46;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+    .city-price {
+        font-family: 'IBM Plex Mono', monospace;
+        color: #5a6f85;
+        font-size: 0.8rem;
     }
 
-    /* Spinner */
-    .stSpinner > div {
-        border-top-color: #00d2ff !important;
-    }
-
-    /* Summary section */
-    .summary-box {
-        background: rgba(0, 210, 255, 0.04);
-        border: 1px solid rgba(0, 210, 255, 0.12);
-        border-radius: 16px;
-        padding: 1.5rem;
-    }
-
-    /* Data source footer */
+    /* ── Footer ── */
     .data-footer {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        color: #484f58;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.7rem;
+        color: #8e9baa;
         letter-spacing: 0.5px;
         text-align: center;
-        padding: 1rem 0;
+        padding: 1.5rem 0 0.5rem;
+        border-top: 1px solid #e1e5eb;
+        margin-top: 2rem;
     }
 
-    /* Warning box styling */
-    .stAlert {
-        border-radius: 12px !important;
+    /* ── Captions ── */
+    .stCaption {
+        color: #8e9baa !important;
+        font-family: 'IBM Plex Sans', sans-serif !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* ── Tabs/alerts ── */
+    .stAlert { border-radius: 2px !important; }
+
+    /* ── Hide Streamlit branding ── */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* ── LANDING PAGE ANIMATIONS ── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(232, 89, 12, 0.2); }
+        50% { box-shadow: 0 0 20px 5px rgba(232, 89, 12, 0.15); }
+    }
+    @keyframes countUp {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+    }
+
+    /* Hero section */
+    .landing-hero {
+        text-align: center;
+        padding: 2rem 0 1.5rem;
+        animation: fadeIn 0.8s ease-out;
+    }
+    .landing-hero h2 {
+        font-family: 'IBM Plex Sans', sans-serif !important;
+        font-size: 2.8rem !important;
+        font-weight: 700 !important;
+        color: #0f2b46 !important;
+        letter-spacing: -1.5px;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 0.3rem !important;
+        line-height: 1.1;
+    }
+    .landing-hero .hero-accent {
+        color: #e8590c;
+    }
+    .landing-tagline {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 1.15rem;
+        color: #5a6f85;
+        margin-bottom: 0.5rem;
+    }
+    .landing-stat-row {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin: 1.5rem 0;
+        animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+    .landing-stat {
+        text-align: center;
+    }
+    .landing-stat-number {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0f2b46;
+        animation: countUp 0.6s ease-out 0.5s both;
+    }
+    .landing-stat-label {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.75rem;
+        color: #8e9baa;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 2px;
+    }
+
+    /* Divider line */
+    .landing-divider {
+        width: 60px;
+        height: 3px;
+        background: #e8590c;
+        margin: 1.5rem auto;
+        animation: fadeIn 1s ease-out 0.5s both;
+    }
+
+    /* Steps row */
+    .step-card {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-radius: 2px;
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .step-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #0f2b46, #e8590c);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+    .step-card:hover::before {
+        transform: scaleX(1);
+    }
+    .step-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(15, 43, 70, 0.08);
+    }
+    .anim-1 { animation: fadeInUp 0.6s ease-out 0.2s both; }
+    .anim-2 { animation: fadeInUp 0.6s ease-out 0.4s both; }
+    .anim-3 { animation: fadeInUp 0.6s ease-out 0.6s both; }
+
+    /* City grid */
+    .city-grid-title {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #8e9baa;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-align: center;
+        margin: 1.5rem 0 1rem;
+        animation: fadeIn 0.8s ease-out 0.8s both;
+    }
+    .city-card {
+        background: #ffffff;
+        border: 1px solid #e1e5eb;
+        border-radius: 2px;
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.25s ease;
+        cursor: default;
+        animation: fadeInUp 0.5s ease-out both;
+    }
+    .city-card:hover {
+        border-left: 3px solid #e8590c;
+        background: #fafbfc;
+        transform: translateX(4px);
+    }
+    .city-name {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-weight: 600;
+        color: #0f2b46;
+        font-size: 0.88rem;
+        margin-bottom: 2px;
+    }
+    .city-price {
+        font-family: 'IBM Plex Mono', monospace;
+        color: #5a6f85;
+        font-size: 0.78rem;
+    }
+    .city-tag {
+        display: inline-block;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 2px;
+        margin-top: 4px;
+    }
+    .tag-college {
+        background: #eef2f7;
+        color: #0f2b46;
+    }
+    .tag-metro {
+        background: #fef0e7;
+        color: #e8590c;
+    }
+
+    /* CTA arrow */
+    .cta-hint {
+        text-align: center;
+        margin-top: 1.5rem;
+        animation: fadeIn 1s ease-out 1s both;
+    }
+    .cta-hint span {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.85rem;
+        color: #8e9baa;
+    }
+    .cta-arrow {
+        display: inline-block;
+        font-size: 1.2rem;
+        color: #e8590c;
+        animation: pulse 2s infinite;
+        margin-left: 6px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -301,23 +542,24 @@ def build_histogram(results):
     fig = go.Figure()
     fig.add_trace(go.Histogram(
         x=buy_wins, nbinsx=60, name="Buying Wins",
-        marker_color="#00d2ff", opacity=0.8,
+        marker_color="#0f2b46", opacity=0.85,
     ))
     fig.add_trace(go.Histogram(
         x=rent_wins, nbinsx=60, name="Renting Wins",
-        marker_color="#ff6b6b", opacity=0.8,
+        marker_color="#e8590c", opacity=0.85,
     ))
-    fig.add_vline(x=0, line_dash="dash", line_color="rgba(255,255,255,0.4)", line_width=2)
+    fig.add_vline(x=0, line_dash="dash", line_color="#0f2b46", line_width=2)
     fig.update_layout(
-        title=dict(text="Distribution of Outcomes", font=dict(family="DM Sans", size=16)),
+        title=dict(text="DISTRIBUTION OF OUTCOMES", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
         xaxis_title="Net Wealth Difference (Buy − Rent)",
         yaxis_title="Simulations",
-        barmode="overlay", height=420,
+        barmode="overlay", height=400,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="DM Sans", color="#8b949e"),
-        legend=dict(x=0.02, y=0.98, font=dict(size=11)),
-        xaxis=dict(tickformat="$,.0f", gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.1)"),
-        yaxis=dict(gridcolor="rgba(255,255,255,0.04)"),
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#1a2a3a"),
+        legend=dict(x=0.02, y=0.98, font=dict(size=10)),
+        xaxis=dict(tickformat="$,.0f", gridcolor="#e1e5eb", zerolinecolor="#0f2b46"),
+        yaxis=dict(gridcolor="#e1e5eb"),
+        margin=dict(t=40, b=40, l=50, r=20),
     )
     return fig
 
@@ -332,37 +574,38 @@ def build_wealth_over_time(results):
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["buy_p75_trajectory"] + results["buy_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(0, 210, 255, 0.08)",
+        fill="toself", fillcolor="rgba(15, 43, 70, 0.1)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Rent confidence band
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["rent_p75_trajectory"] + results["rent_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(255, 107, 107, 0.08)",
+        fill="toself", fillcolor="rgba(232, 89, 12, 0.1)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Median lines
     fig.add_trace(go.Scatter(
         x=years, y=results["buy_median_trajectory"],
         mode="lines", name="Buy (Median)",
-        line=dict(color="#00d2ff", width=3),
+        line=dict(color="#0f2b46", width=3),
     ))
     fig.add_trace(go.Scatter(
         x=years, y=results["rent_median_trajectory"],
         mode="lines", name="Rent + Save (Median)",
-        line=dict(color="#ff6b6b", width=3),
+        line=dict(color="#e8590c", width=3),
     ))
 
     fig.update_layout(
-        title=dict(text="Wealth Over Time", font=dict(family="DM Sans", size=16)),
+        title=dict(text="WEALTH OVER TIME", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
         xaxis_title="Year", yaxis_title="Net Wealth ($)",
-        height=420,
+        height=400,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="DM Sans", color="#8b949e"),
-        legend=dict(x=0.02, y=0.98, font=dict(size=11)),
-        yaxis=dict(tickformat="$,.0f", gridcolor="rgba(255,255,255,0.04)"),
-        xaxis=dict(gridcolor="rgba(255,255,255,0.04)"),
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#000000"),
+        legend=dict(x=0.02, y=0.98, font=dict(size=10)),
+        yaxis=dict(tickformat="$,.0f", gridcolor="#e1e5eb"),
+        xaxis=dict(gridcolor="#e1e5eb"),
+        margin=dict(t=40, b=40, l=60, r=20),
     )
     return fig
 
@@ -382,7 +625,7 @@ def build_sensitivity_chart(sensitivity):
 
     names = [display_names.get(s[0], s[0]) for s in sorted_vars]
     values = [s[1] for s in sorted_vars]
-    colors = ["#00d2ff" if v > 0 else "#ff6b6b" for v in values]
+    colors = ["#0f2b46" if v > 0 else "#e8590c" for v in values]
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
@@ -390,17 +633,18 @@ def build_sensitivity_chart(sensitivity):
         marker_color=colors,
         text=[f"{v:+.3f}" for v in values],
         textposition="outside",
-        textfont=dict(family="JetBrains Mono", size=12),
+        textfont=dict(family="IBM Plex Mono, Courier New, monospace", size=11, color="#1a2a3a"),
     ))
     fig.update_layout(
-        title=dict(text="What Matters Most?", font=dict(family="DM Sans", size=16)),
+        title=dict(text="SENSITIVITY ANALYSIS", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
         xaxis_title="Correlation with Outcome",
-        height=400,
+        height=380,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="DM Sans", color="#8b949e"),
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#1a2a3a"),
         yaxis=dict(autorange="reversed"),
-        xaxis=dict(zeroline=True, zerolinecolor="rgba(255,255,255,0.15)", zerolinewidth=1,
-                   gridcolor="rgba(255,255,255,0.04)"),
+        xaxis=dict(zeroline=True, zerolinecolor="#0f2b46", zerolinewidth=1,
+                   gridcolor="#e1e5eb"),
+        margin=dict(t=40, b=40, l=120, r=20),
     )
     return fig
 
@@ -475,7 +719,7 @@ if run_button:
     # ── Key metrics ──
     st.markdown("## Results")
     if selected_city_key != "custom":
-        st.markdown(f"**{results['city']}** — ${results['home_price']:,.0f} home vs ${results['monthly_rent']:,.0f}/mo rent")
+        st.markdown(f'<div class="city-badge">{results["city"]} <span class="accent">|</span> ${results["home_price"]:,.0f} home <span class="accent">·</span> ${results["monthly_rent"]:,.0f}/mo rent</div>', unsafe_allow_html=True)
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -486,9 +730,9 @@ if run_button:
     with col3:
         med = results["median_advantage"]
         winner = "Buying" if med > 0 else "Renting"
-        st.metric(f"Median Advantage ({winner})", f"${abs(med):,.0f}")
+        st.metric(f"Median Edge ({winner})", f"${abs(med):,.0f}")
     with col4:
-        st.metric("Downside Risk (10th %ile)", f"${results['p10_advantage']:,.0f}")
+        st.metric("Downside (10th pctl)", f"${results['p10_advantage']:,.0f}")
 
     st.markdown("---")
 
@@ -539,44 +783,95 @@ if run_button:
         st.caption("AI summary powered by Google Gemini · Not financial advice · Built on historical data from FHFA, BLS, and S&P 500")
 
 else:
-    # ── Landing page ──
-    st.markdown("")
+    # ── Animated Landing Page ──
 
+    # Hero section
+    st.markdown("""
+    <div class="landing-hero">
+        <h2>Should you <span class="hero-accent">rent</span> or <span class="hero-accent">buy</span>?</h2>
+        <div class="landing-tagline">Stop guessing. Start simulating.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Stats row
+    st.markdown("""
+    <div class="landing-stat-row">
+        <div class="landing-stat">
+            <div class="landing-stat-number">10,000</div>
+            <div class="landing-stat-label">Simulations</div>
+        </div>
+        <div class="landing-stat">
+            <div class="landing-stat-number">14</div>
+            <div class="landing-stat-label">Cities</div>
+        </div>
+        <div class="landing-stat">
+            <div class="landing-stat-number">50</div>
+            <div class="landing-stat-label">Years of Data</div>
+        </div>
+        <div class="landing-stat">
+            <div class="landing-stat-number">4</div>
+            <div class="landing-stat-label">Risk Variables</div>
+        </div>
+    </div>
+    <div class="landing-divider"></div>
+    """, unsafe_allow_html=True)
+
+    # How it works — 3 step cards
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div class="step-number">01</div>
-        <div class="step-title">Pick a City or Go Custom</div>
-        <div class="step-desc">Choose from 14 cities with real market data, or enter your own numbers.</div>
+        <div class="step-card anim-1">
+            <div class="step-number">01</div>
+            <div class="step-title">Pick a City</div>
+            <div class="step-desc">14 cities with real median home prices and rents. Or go fully custom.</div>
+        </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div class="step-number">02</div>
-        <div class="step-title">We Run 10,000 Simulations</div>
-        <div class="step-desc">Each one randomizes home prices, rent inflation, and maintenance costs using historical distributions.</div>
+        <div class="step-card anim-2">
+            <div class="step-number">02</div>
+            <div class="step-title">We Simulate</div>
+            <div class="step-desc">10,000 Monte Carlo runs. Each randomizes appreciation, inflation, and costs.</div>
+        </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div class="step-number">03</div>
-        <div class="step-title">See the Probability</div>
-        <div class="step-desc">Not one number. A full distribution — so you know the odds, not just the guess.</div>
+        <div class="step-card anim-3">
+            <div class="step-number">03</div>
+            <div class="step-title">See the Odds</div>
+            <div class="step-desc">Full probability distribution. Break-even year. Sensitivity analysis. AI summary.</div>
+        </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    # City grid
+    st.markdown('<div class="city-grid-title">Available Markets</div>', unsafe_allow_html=True)
 
-    # Show available cities as styled cards
-    st.markdown("#### Available Cities")
     cities_data = list_cities()
+    college_towns = ["state_college_pa", "ann_arbor_mi", "chapel_hill_nc", "ames_ia", "austin_tx", "madison_wi", "boulder_co", "tucson_az"]
+
     city_cols = st.columns(4)
     for i, city in enumerate(cities_data):
         from city_data import get_city
         info = get_city(city["key"])
+        is_college = city["key"] in college_towns
+        tag_class = "tag-college" if is_college else "tag-metro"
+        tag_text = "COLLEGE" if is_college else "METRO"
+        delay = 0.8 + (i * 0.06)
         with city_cols[i % 4]:
             st.markdown(f"""
-            <div class="city-card">
+            <div class="city-card" style="animation-delay: {delay}s">
                 <div class="city-name">{info['name']}</div>
                 <div class="city-price">${info['median_home_price']:,.0f} · ${info['median_rent']:,.0f}/mo</div>
+                <span class="city-tag {tag_class}">{tag_text}</span>
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown('<div class="data-footer">S&P 500 Total Returns · FHFA + NAR + Shiller Home Prices · BLS CPI Rent Inflation</div>', unsafe_allow_html=True)
+    # CTA hint
+    st.markdown("""
+    <div class="cta-hint">
+        <span>Select a city in the sidebar and hit simulate</span>
+        <span class="cta-arrow">→</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="data-footer">S&P 500 Total Returns · FHFA + NAR + Shiller Home Prices · BLS CPI Rent Inflation · Google Gemini AI</div>', unsafe_allow_html=True)
