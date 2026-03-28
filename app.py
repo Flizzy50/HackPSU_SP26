@@ -14,9 +14,228 @@ genai.configure(api_key=GEMINI_API_KEY)
 # ── Page config ──
 st.set_page_config(page_title="RentOrOwn", page_icon="🏠", layout="wide")
 
+# ── Custom CSS ──
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    /* Global */
+    .stApp {
+        background: linear-gradient(160deg, #0a0a0f 0%, #0d1117 40%, #0f1923 100%);
+    }
+
+    /* Remove default padding */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    /* Typography */
+    h1, h2, h3, .stMetricLabel, .stMetricValue {
+        font-family: 'DM Sans', sans-serif !important;
+    }
+
+    /* Hero title */
+    h1 {
+        font-size: 3.2rem !important;
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, #00d2ff, #7b61ff, #ff6b6b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+        margin-bottom: 0 !important;
+    }
+
+    /* Subtitle styling */
+    .subtitle {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 1.15rem;
+        color: #8b949e;
+        margin-top: -0.5rem;
+        margin-bottom: 2rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* Metric cards */
+    [data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.2rem 1.4rem;
+        backdrop-filter: blur(10px);
+        transition: border-color 0.3s ease;
+    }
+    [data-testid="stMetric"]:hover {
+        border-color: rgba(0, 210, 255, 0.3);
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem !important;
+        color: #8b949e !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    [data-testid="stMetricValue"] {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 1.8rem !important;
+        color: #e6edf3 !important;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: rgba(13, 17, 23, 0.95);
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stNumberInput label,
+    [data-testid="stSidebar"] .stSlider label {
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.85rem !important;
+        color: #8b949e !important;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    /* Button */
+    .stButton > button {
+        background: linear-gradient(135deg, #00d2ff, #7b61ff) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        padding: 0.8rem 1.5rem !important;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2) !important;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 25px rgba(0, 210, 255, 0.35) !important;
+    }
+
+    /* Dividers */
+    hr {
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        margin: 1.5rem 0 !important;
+    }
+
+    /* Section headers */
+    h2 {
+        font-size: 1.8rem !important;
+        color: #e6edf3 !important;
+        letter-spacing: -0.5px;
+    }
+    h3 {
+        font-size: 1.2rem !important;
+        color: #c9d1d9 !important;
+    }
+    h4 {
+        color: #8b949e !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem !important;
+    }
+
+    /* Captions */
+    .stCaption {
+        color: #484f58 !important;
+        font-family: 'DM Sans', sans-serif !important;
+    }
+
+    /* City cards on landing page */
+    .city-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    .city-card:hover {
+        border-color: rgba(0, 210, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    .city-name {
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        color: #e6edf3;
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+    .city-price {
+        font-family: 'JetBrains Mono', monospace;
+        color: #8b949e;
+        font-size: 0.85rem;
+    }
+
+    /* How it works cards */
+    .step-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d2ff, #7b61ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    .step-title {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #e6edf3;
+        margin-bottom: 0.3rem;
+    }
+    .step-desc {
+        font-family: 'DM Sans', sans-serif;
+        color: #8b949e;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* Plotly chart containers */
+    [data-testid="stPlotlyChart"] {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 16px;
+        padding: 0.5rem;
+    }
+
+    /* Spinner */
+    .stSpinner > div {
+        border-top-color: #00d2ff !important;
+    }
+
+    /* Summary section */
+    .summary-box {
+        background: rgba(0, 210, 255, 0.04);
+        border: 1px solid rgba(0, 210, 255, 0.12);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+    /* Data source footer */
+    .data-footer {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #484f58;
+        letter-spacing: 0.5px;
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    /* Warning box styling */
+    .stAlert {
+        border-radius: 12px !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ── Header ──
 st.title("RentOrOwn")
-st.markdown("**Every rent vs. buy calculator gives you one number. We give you 10,000.**")
-st.markdown("---")
+st.markdown('<p class="subtitle">Every rent vs. buy calculator gives you one number. We give you 10,000.</p>', unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────
 # SIDEBAR INPUTS
@@ -82,20 +301,23 @@ def build_histogram(results):
     fig = go.Figure()
     fig.add_trace(go.Histogram(
         x=buy_wins, nbinsx=60, name="Buying Wins",
-        marker_color="#2ecc71", opacity=0.85,
+        marker_color="#00d2ff", opacity=0.8,
     ))
     fig.add_trace(go.Histogram(
         x=rent_wins, nbinsx=60, name="Renting Wins",
-        marker_color="#e74c3c", opacity=0.85,
+        marker_color="#ff6b6b", opacity=0.8,
     ))
-    fig.add_vline(x=0, line_dash="dash", line_color="white", line_width=2)
+    fig.add_vline(x=0, line_dash="dash", line_color="rgba(255,255,255,0.4)", line_width=2)
     fig.update_layout(
-        title="Distribution of Outcomes (10,000 Simulations)",
+        title=dict(text="Distribution of Outcomes", font=dict(family="DM Sans", size=16)),
         xaxis_title="Net Wealth Difference (Buy − Rent)",
-        yaxis_title="Number of Simulations",
-        barmode="overlay", template="plotly_dark", height=420,
-        legend=dict(x=0.02, y=0.98),
-        xaxis=dict(tickformat="$,.0f"),
+        yaxis_title="Simulations",
+        barmode="overlay", height=420,
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="DM Sans", color="#8b949e"),
+        legend=dict(x=0.02, y=0.98, font=dict(size=11)),
+        xaxis=dict(tickformat="$,.0f", gridcolor="rgba(255,255,255,0.04)", zerolinecolor="rgba(255,255,255,0.1)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.04)"),
     )
     return fig
 
@@ -110,34 +332,37 @@ def build_wealth_over_time(results):
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["buy_p75_trajectory"] + results["buy_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(46, 204, 113, 0.15)",
+        fill="toself", fillcolor="rgba(0, 210, 255, 0.08)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Rent confidence band
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["rent_p75_trajectory"] + results["rent_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(231, 76, 60, 0.15)",
+        fill="toself", fillcolor="rgba(255, 107, 107, 0.08)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Median lines
     fig.add_trace(go.Scatter(
         x=years, y=results["buy_median_trajectory"],
         mode="lines", name="Buy (Median)",
-        line=dict(color="#2ecc71", width=3),
+        line=dict(color="#00d2ff", width=3),
     ))
     fig.add_trace(go.Scatter(
         x=years, y=results["rent_median_trajectory"],
-        mode="lines", name="Rent + Invest (Median)",
-        line=dict(color="#e74c3c", width=3),
+        mode="lines", name="Rent + Save (Median)",
+        line=dict(color="#ff6b6b", width=3),
     ))
 
     fig.update_layout(
-        title="Wealth Accumulation Over Time",
+        title=dict(text="Wealth Over Time", font=dict(family="DM Sans", size=16)),
         xaxis_title="Year", yaxis_title="Net Wealth ($)",
-        template="plotly_dark", height=420,
-        legend=dict(x=0.02, y=0.98),
-        yaxis=dict(tickformat="$,.0f"),
+        height=420,
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="DM Sans", color="#8b949e"),
+        legend=dict(x=0.02, y=0.98, font=dict(size=11)),
+        yaxis=dict(tickformat="$,.0f", gridcolor="rgba(255,255,255,0.04)"),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.04)"),
     )
     return fig
 
@@ -157,7 +382,7 @@ def build_sensitivity_chart(sensitivity):
 
     names = [display_names.get(s[0], s[0]) for s in sorted_vars]
     values = [s[1] for s in sorted_vars]
-    colors = ["#2ecc71" if v > 0 else "#e74c3c" for v in values]
+    colors = ["#00d2ff" if v > 0 else "#ff6b6b" for v in values]
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
@@ -165,13 +390,17 @@ def build_sensitivity_chart(sensitivity):
         marker_color=colors,
         text=[f"{v:+.3f}" for v in values],
         textposition="outside",
+        textfont=dict(family="JetBrains Mono", size=12),
     ))
     fig.update_layout(
-        title="What Matters Most? (Correlation with Outcome)",
-        xaxis_title="Correlation with Buy vs Rent Advantage",
-        template="plotly_dark", height=400,
+        title=dict(text="What Matters Most?", font=dict(family="DM Sans", size=16)),
+        xaxis_title="Correlation with Outcome",
+        height=400,
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="DM Sans", color="#8b949e"),
         yaxis=dict(autorange="reversed"),
-        xaxis=dict(zeroline=True, zerolinecolor="white", zerolinewidth=1),
+        xaxis=dict(zeroline=True, zerolinecolor="rgba(255,255,255,0.15)", zerolinewidth=1,
+                   gridcolor="rgba(255,255,255,0.04)"),
     )
     return fig
 
@@ -287,44 +516,55 @@ if run_button:
         )
 
         if summary:
-            st.markdown(summary)
+            st.markdown(f'<div class="summary-box">{summary}</div>', unsafe_allow_html=True)
         else:
             # Fallback
             pct = results["buy_wins_pct"]
             if pct > 60:
-                st.markdown(f"Buying looks favorable — it wins in **{pct:.0f}%** of simulations.")
+                fallback = f"Buying looks favorable — it wins in <strong>{pct:.0f}%</strong> of simulations."
             elif pct > 40:
-                st.markdown(f"It's close to a coin flip. Buying wins **{pct:.0f}%** of the time.")
+                fallback = f"It's close to a coin flip. Buying wins <strong>{pct:.0f}%</strong> of the time."
             else:
-                st.markdown(f"Renting and investing looks stronger. Buying only wins **{pct:.0f}%** of the time.")
+                fallback = f"Renting and saving looks stronger. Buying only wins <strong>{pct:.0f}%</strong> of the time."
 
             be = results["breakeven_year"]
             if be:
-                st.markdown(f"Buying breaks even around **year {be}**.")
+                fallback += f" Buying breaks even around <strong>year {be}</strong>."
             else:
-                st.markdown("Buying doesn't break even in your time horizon.")
+                fallback += " Buying doesn't break even in your time horizon."
 
-        st.markdown("---")
-        st.caption("AI summary powered by Google Gemini. This is a simulation, not financial advice. Built on 50 years of real data from FHFA, BLS, and S&P 500.")
+            st.markdown(f'<div class="summary-box">{fallback}</div>', unsafe_allow_html=True)
+
+        st.markdown("")
+        st.caption("AI summary powered by Google Gemini · Not financial advice · Built on historical data from FHFA, BLS, and S&P 500")
 
 else:
     # ── Landing page ──
-    st.markdown("## How It Works")
-    col1, col2, col3 = st.columns(3)
+    st.markdown("")
 
+    col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("### 1. Pick a City or Go Custom")
-        st.markdown("Choose from 8 college towns with real data, or enter your own numbers.")
+        st.markdown("""
+        <div class="step-number">01</div>
+        <div class="step-title">Pick a City or Go Custom</div>
+        <div class="step-desc">Choose from 14 cities with real market data, or enter your own numbers.</div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.markdown("### 2. We Run 10,000 Simulations")
-        st.markdown("Each one randomizes home prices, rent inflation, market returns, and maintenance costs.")
+        st.markdown("""
+        <div class="step-number">02</div>
+        <div class="step-title">We Run 10,000 Simulations</div>
+        <div class="step-desc">Each one randomizes home prices, rent inflation, and maintenance costs using historical distributions.</div>
+        """, unsafe_allow_html=True)
     with col3:
-        st.markdown("### 3. See the Probability")
-        st.markdown("Not one number. A full distribution — so you know the odds, not just the guess.")
+        st.markdown("""
+        <div class="step-number">03</div>
+        <div class="step-title">See the Probability</div>
+        <div class="step-desc">Not one number. A full distribution — so you know the odds, not just the guess.</div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # Show available cities
+    # Show available cities as styled cards
     st.markdown("#### Available Cities")
     cities_data = list_cities()
     city_cols = st.columns(4)
@@ -332,8 +572,11 @@ else:
         from city_data import get_city
         info = get_city(city["key"])
         with city_cols[i % 4]:
-            st.markdown(f"**{info['name']}**")
-            st.markdown(f"${info['median_home_price']:,.0f} / ${info['median_rent']:,.0f}/mo")
+            st.markdown(f"""
+            <div class="city-card">
+                <div class="city-name">{info['name']}</div>
+                <div class="city-price">${info['median_home_price']:,.0f} · ${info['median_rent']:,.0f}/mo</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("**Data Sources:** S&P 500 total returns · FHFA + NAR + Shiller home prices · BLS CPI rent inflation")
+    st.markdown('<div class="data-footer">S&P 500 Total Returns · FHFA + NAR + Shiller Home Prices · BLS CPI Rent Inflation</div>', unsafe_allow_html=True)
