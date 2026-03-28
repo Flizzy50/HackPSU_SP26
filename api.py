@@ -55,6 +55,10 @@ def run_for_city(
     time_horizon_years: int = 10,
     n_simulations: int = 10_000,
     distributions: Distributions | None = None,
+    renter_savings_rate: float = 1.0,
+    renter_keeps_down_payment: bool = False,
+    invest_surplus: bool = False,
+    monthly_rent_override: float | None = None,
 ) -> dict:
     """
     Run simulation using a preset city's data.
@@ -68,12 +72,15 @@ def run_for_city(
         down_payment_pct=down_payment_pct,
         mortgage_rate=mortgage_rate,
         mortgage_term_years=mortgage_term_years,
-        monthly_rent=city["median_rent"],
+        monthly_rent=monthly_rent_override if monthly_rent_override is not None else city["median_rent"],
         annual_property_tax_rate=city["property_tax_rate"],
         annual_insurance_rate=city["insurance_rate"],
         time_horizon_years=time_horizon_years,
         n_simulations=n_simulations,
         distributions=dist,
+        renter_savings_rate=renter_savings_rate,
+        renter_keeps_down_payment=renter_keeps_down_payment,
+        invest_surplus=invest_surplus,
     )
 
     results = run_simulation(inputs)
@@ -95,6 +102,9 @@ def run_custom(
     insurance_rate: float = 0.005,
     n_simulations: int = 10_000,
     distributions: Distributions | None = None,
+    renter_savings_rate: float = 1.0,
+    renter_keeps_down_payment: bool = False,
+    invest_surplus: bool = False,
 ) -> dict:
     """
     Run simulation with fully custom inputs (no city preset).
@@ -113,6 +123,9 @@ def run_custom(
         time_horizon_years=time_horizon_years,
         n_simulations=n_simulations,
         distributions=dist,
+        renter_savings_rate=renter_savings_rate,
+        renter_keeps_down_payment=renter_keeps_down_payment,
+        invest_surplus=invest_surplus,
     )
 
     results = run_simulation(inputs)

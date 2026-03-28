@@ -6,6 +6,7 @@ import os
 
 from api import run_for_city, run_custom
 from city_data import list_cities
+from engine import Distributions
 
 # ── Gemini API setup ──
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyAcCsmpD3ssEpU7a-sWZCSiHvpcm9Z97Vc")
@@ -515,10 +516,35 @@ with st.sidebar:
 
     mortgage_term = st.selectbox("Mortgage Term", [15, 30], index=1)
 
-    monthly_rent = st.number_input(
-        "Monthly Rent ($)", min_value=200, max_value=20_000,
-        value=default_rent, step=100,
+    if selected_city_key != "custom":
+        override_rent = st.checkbox("Override city rent?", value=False)
+        monthly_rent_input = st.number_input(
+            "Monthly Rent ($)", min_value=200, max_value=20_000,
+            value=default_rent, step=100,
+            disabled=not override_rent,
+            help="City mode uses the preset median unless you override it."
+        )
+    else:
+        override_rent = True
+        monthly_rent_input = st.number_input(
+            "Monthly Rent ($)", min_value=200, max_value=20_000,
+            value=default_rent, step=100,
+        )
+
+    st.markdown("**What will you do with the savings?**")
+    strategy_label = st.selectbox(
+        "Savings discipline",
+        ["Nothing (0%)", "High-yield savings (~4.5%)", "Invest in index funds (~10%)"],
+        index=1,
+        help="Models how the renter deploys surplus cash and the initial down payment if they rent."
     )
+
+    strategy_map = {
+        "Nothing (0%)": {"mean": 0.0, "std": 0.0001},
+        "High-yield savings (~4.5%)": {"mean": 0.045, "std": 0.01},
+        "Invest in index funds (~10%)": {"mean": 0.10, "std": 0.16},
+    }
+    strategy = strategy_map[strategy_label]
 
     time_horizon = st.slider(
         "How long do you plan to stay? (years)",
@@ -698,6 +724,8 @@ Do NOT include disclaimers or caveats."""
 # ──────────────────────────────────────────────
 if run_button:
     with st.spinner("Running 10,000 simulations..."):
+        dist = Distributions(stock_return_mean=strategy["mean"], stock_return_std=strategy["std"])
+        invest_flag = True  # always apply strategy; 0% just behaves like cash
         if selected_city_key != "custom":
             results = run_for_city(
                 city_key=selected_city_key,
@@ -705,15 +733,20 @@ if run_button:
                 mortgage_rate=mortgage_rate / 100,
                 mortgage_term_years=mortgage_term,
                 time_horizon_years=time_horizon,
+                distributions=dist,
+                invest_surplus=invest_flag,
+                monthly_rent_override=monthly_rent_input if override_rent else None,
             )
         else:
             results = run_custom(
                 home_price=home_price,
-                monthly_rent=monthly_rent,
+                monthly_rent=monthly_rent_input,
                 down_payment_pct=down_payment_pct / 100,
                 mortgage_rate=mortgage_rate / 100,
                 mortgage_term_years=mortgage_term,
                 time_horizon_years=time_horizon,
+                distributions=dist,
+                invest_surplus=invest_flag,
             )
 
     # ── Key metrics ──
