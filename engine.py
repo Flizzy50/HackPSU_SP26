@@ -4,7 +4,7 @@ Rent vs Buy — Monte Carlo Simulation Engine
 Pure-Python (NumPy) backend that runs N simulated futures comparing
 two parallel financial lives:
     1. BUY  — purchase a home with a mortgage
-    2. RENT — rent + invest the cost difference in the stock market
+    2. RENT — rent and keep part of the cost difference as cash (no investing)
 
 Every simulation randomizes:
     • Home appreciation rate
@@ -71,6 +71,9 @@ class SimulationInputs:
     filing_status:       str   = "single"     # For potential tax logic later
     n_simulations:       int   = 10_000
     distributions:       Distributions = field(default_factory=Distributions)
+    renter_savings_rate: float = 1.0          # Fraction of surplus rent the renter keeps (default: all)
+    renter_keeps_down_payment: bool = False   # If True, renter starts with buyer's DP + closing cash
+    invest_surplus:      bool  = False        # If True, surplus cash is invested at stock_return assumptions
 
 
 # ──────────────────────────────────────────────
@@ -146,7 +149,8 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
             - Equity = home_value − remaining_mortgage − selling_costs
         Rent path:
             - Renter pays monthly rent (grows by random rent inflation)
-            - Renter keeps any monthly cost advantage as idle cash (no investing)
+            - Renter keeps only a portion of any monthly cost advantage as idle cash
+              (e.g., they spend most of the surplus)
 
         The "cost difference" can be negative (rent > own costs) in which
         case the buyer keeps the surplus cash.  No investing/compounding is applied.
@@ -163,6 +167,7 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
         rng.normal(d.maintenance_pct_mean, d.maintenance_pct_std, (N, T)),
         0.005, None,
     )
+    stock_ret   = rng.normal(d.stock_return_mean, d.stock_return_std, (N, T))
 
     # ---- Fixed quantities ----
     down_payment = inputs.home_price * inputs.down_payment_pct
@@ -177,13 +182,14 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
 
     # State vectors (per simulation)
     home_value     = np.full(N, inputs.home_price, dtype=np.float64)
-    rent_cash = np.zeros(N, dtype=np.float64)  # renter surplus, not invested
-    buy_cash  = np.zeros(N, dtype=np.float64)  # buyer surplus, not invested
+    rent_portfolio = np.zeros(N, dtype=np.float64)  # renter surplus (invested or cash)
+    buy_portfolio  = np.zeros(N, dtype=np.float64)  # buyer surplus (invested or cash)
     monthly_rent   = np.full(N, inputs.monthly_rent, dtype=np.float64)
 
     # Initial cash outlay for buyer: down payment + closing costs
-    # The renter keeps that cash (no investment growth).
-    rent_cash[:] = down_payment + closing_buy
+    # Optionally give the renter that same cash (default: they do keep it).
+    if inputs.renter_keeps_down_payment:
+        rent_portfolio[:] = down_payment + closing_buy
 
     for t in range(T):
         # ---- Home appreciation ----
@@ -202,16 +208,18 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
         )
 
         # ---- Monthly cost difference ----
-        #   positive → renter has leftover cash to keep
-        #   negative → buyer has leftover cash to keep
+        #   positive → renter has leftover cash to keep/invest (may spend most)
+        #   negative → buyer has leftover cash to keep/invest
         diff = buyer_monthly_cost - monthly_rent
 
-        renter_monthly_save = np.maximum(diff, 0)
+        renter_monthly_save = np.maximum(diff, 0) * inputs.renter_savings_rate
         buyer_monthly_save  = np.maximum(-diff, 0)
 
-        # Accumulate surplus cash without investment growth
-        rent_cash += renter_monthly_save * 12
-        buy_cash  += buyer_monthly_save * 12
+        # ---- Grow/save portfolios monthly ----
+        monthly_return = (stock_ret[:, t] / 12) if inputs.invest_surplus else 0.0
+        for _month in range(12):
+            rent_portfolio = rent_portfolio * (1 + monthly_return) + renter_monthly_save
+            buy_portfolio  = buy_portfolio  * (1 + monthly_return) + buyer_monthly_save
 
         # ---- Rent inflation for next year ----
         monthly_rent *= (1 + rent_infl[:, t])
@@ -223,10 +231,10 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
                                    inputs.mortgage_term_years, months_elapsed)
         ])  # scalar, same for all sims
         sell_costs = home_value * inputs.closing_cost_sell_pct
-        buy_equity = home_value - remaining_mortgage - sell_costs + buy_cash
+        buy_equity = home_value - remaining_mortgage - sell_costs + buy_portfolio
 
         buy_wealth_yearly[:, t]  = buy_equity.ravel()
-        rent_wealth_yearly[:, t] = rent_cash
+        rent_wealth_yearly[:, t] = rent_portfolio
 
     # ──── Final results ────
     final_buy  = buy_wealth_yearly[:, -1]
@@ -249,6 +257,7 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
         ("home_appreciation", home_appr),
         ("rent_inflation",    rent_infl),
         ("maintenance_costs", maint_pct),
+        ("stock_returns",     stock_ret),
     ]:
         avg_draw = draws.mean(axis=1)  # average over years, per sim
         corr = np.corrcoef(avg_draw, advantage)[0, 1]

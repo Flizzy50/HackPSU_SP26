@@ -76,7 +76,7 @@ def test_simulation_runs():
     assert results.rent_wealth.shape == (1_000,)
     assert 0 <= results.buy_wins_pct <= 100
     assert results.yearly_buy_median.shape == (10,)
-    assert len(results.sensitivity) == 3
+    assert len(results.sensitivity) == 4
     print(f"  [OK] Simulation ran: buy wins {results.buy_wins_pct:.1f}% of the time")
     print(f"    Median buy wealth:  ${results.median_buy:,.0f}")
     print(f"    Median rent wealth: ${results.median_rent:,.0f}")
@@ -130,7 +130,7 @@ def test_sensitivity_has_expected_keys():
         n_simulations=500,
     )
     results = run_simulation(inputs)
-    expected_keys = {"home_appreciation", "rent_inflation", "maintenance_costs"}
+    expected_keys = {"home_appreciation", "rent_inflation", "maintenance_costs", "stock_returns"}
     assert set(results.sensitivity.keys()) == expected_keys
     print(f"  [OK] Sensitivity keys present: {list(results.sensitivity.keys())}")
 
