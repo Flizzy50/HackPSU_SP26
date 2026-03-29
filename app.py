@@ -527,6 +527,45 @@ with st.sidebar:
         help="City mode will use this instead of the preset median."
     )
 
+    extras = st.expander("Owner / Renter extras (optional)", expanded=False)
+    with extras:
+        st.caption("Add fees and frictions that differ between owning and renting.")
+
+        o1, o2 = st.columns(2)
+        with o1:
+            pmi_rate_pct = st.number_input(
+                "PMI rate (%/yr)", min_value=0.0, max_value=5.0, value=0.0, step=0.05,
+                help=(
+                    "Annual PMI as a percent of the outstanding balance. "
+                    "Only applies while down payment < 20% and LTV >= 80%."
+                ),
+            )
+        with o2:
+            hoa_monthly = st.number_input(
+                "HOA / common charges ($/mo)", min_value=0.0, max_value=5_000.0, value=0.0, step=25.0,
+            )
+
+        utilities_delta = st.number_input(
+            "Extra owner utilities vs renting ($/mo)", min_value=0.0, max_value=2_000.0, value=0.0, step=10.0,
+            help="If owners pay more for utilities/upkeep than renters, enter the difference.",
+        )
+
+        r1, r2 = st.columns(2)
+        with r1:
+            renter_insurance_monthly = st.number_input(
+                "Renter's insurance ($/mo)", min_value=0.0, max_value=500.0, value=0.0, step=5.0,
+            )
+        with r2:
+            renter_security_deposit_months = st.number_input(
+                "Security deposit (months of rent)", min_value=0.0, max_value=6.0, value=1.0, step=0.5,
+                help="Deposit is returned at the end of the horizon.",
+            )
+
+        renter_broker_fee_pct = st.number_input(
+            "Broker fee (% of annual rent, upfront)", min_value=0.0, max_value=50.0, value=0.0, step=1.0,
+            help="One-time fee, charged upfront as a percent of first-year rent.",
+        )
+
     st.markdown("**What will you do with the savings?**")
     strategy_label = st.selectbox(
         "Savings discipline",
@@ -578,7 +617,7 @@ with st.sidebar:
     with comp_col2:
         compare_b_name = st.selectbox("City B", compare_city_names, index=8, key="comp_b")  # NYC default
 
-    compare_horizon = st.slider("Compare Horizon (years)", 1, 30, 10, key="comp_horizon")
+    compare_horizon = st.slider("Compare Horizon (years)", 1, 50, 10, key="comp_horizon")
     compare_button = st.button("Compare Cities", use_container_width=True)
 
 
@@ -807,7 +846,11 @@ Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. 
     # MAIN DISPLAY
 
 # Build a key for the current sidebar settings
-current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{buyer_invest}|{renter_invest}"
+current_scenario_key = (
+    f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|"
+    f"{strategy_label}|{buyer_invest}|{renter_invest}|{pmi_rate_pct}|{hoa_monthly}|{utilities_delta}|"
+    f"{renter_insurance_monthly}|{renter_security_deposit_months}|{renter_broker_fee_pct}"
+)
 
 results = None
 compare_active = False
@@ -829,12 +872,20 @@ if compare_button:
             mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
             time_horizon_years=compare_horizon, distributions=dist,
             invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
+            pmi_rate=pmi_rate_pct / 100, hoa_monthly=hoa_monthly, utilities_delta=utilities_delta,
+            renter_insurance_monthly=renter_insurance_monthly,
+            renter_security_deposit_months=renter_security_deposit_months,
+            renter_broker_fee_pct=renter_broker_fee_pct / 100,
         )
         results_b = run_for_city(
             city_key=key_b, down_payment_pct=down_payment_pct / 100,
             mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
             time_horizon_years=compare_horizon, distributions=dist,
             invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
+            pmi_rate=pmi_rate_pct / 100, hoa_monthly=hoa_monthly, utilities_delta=utilities_delta,
+            renter_insurance_monthly=renter_insurance_monthly,
+            renter_security_deposit_months=renter_security_deposit_months,
+            renter_broker_fee_pct=renter_broker_fee_pct / 100,
         )
 
     st.markdown("## City Comparison")
@@ -920,6 +971,12 @@ elif run_button:
                 buyer_invest_surplus=buyer_invest,
                 renter_invest_surplus=renter_invest,
                 monthly_rent_override=monthly_rent_input,
+                pmi_rate=pmi_rate_pct / 100,
+                hoa_monthly=hoa_monthly,
+                utilities_delta=utilities_delta,
+                renter_insurance_monthly=renter_insurance_monthly,
+                renter_security_deposit_months=renter_security_deposit_months,
+                renter_broker_fee_pct=renter_broker_fee_pct / 100,
             )
         else:
             results = run_custom(
@@ -933,6 +990,12 @@ elif run_button:
                 invest_surplus=False,
                 buyer_invest_surplus=buyer_invest,
                 renter_invest_surplus=renter_invest,
+                pmi_rate=pmi_rate_pct / 100,
+                hoa_monthly=hoa_monthly,
+                utilities_delta=utilities_delta,
+                renter_insurance_monthly=renter_insurance_monthly,
+                renter_security_deposit_months=renter_security_deposit_months,
+                renter_broker_fee_pct=renter_broker_fee_pct / 100,
             )
 
     # Cache the latest run so chat interactions don't drop back to landing
