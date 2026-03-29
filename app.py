@@ -970,6 +970,7 @@ elif run_button:
                 invest_surplus=False,
                 buyer_invest_surplus=buyer_invest,
                 renter_invest_surplus=renter_invest,
+                home_price_override=home_price,
                 monthly_rent_override=monthly_rent_input,
                 pmi_rate=pmi_rate_pct / 100,
                 hoa_monthly=hoa_monthly,

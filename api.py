@@ -55,6 +55,7 @@ def run_for_city(
     invest_surplus: bool = True,
     buyer_invest_surplus: bool | None = None,
     renter_invest_surplus: bool | None = None,
+    home_price_override: float | None = None,
     monthly_rent_override: float | None = None,
     pmi_rate: float = 0.0,
     hoa_monthly: float = 0.0,
@@ -69,9 +70,10 @@ def run_for_city(
     """
     city = get_city(city_key)
     dist = distributions or Distributions()
+    home_price = home_price_override if home_price_override is not None else city["median_home_price"]
 
     inputs = SimulationInputs(
-        home_price=city["median_home_price"],
+        home_price=home_price,
         down_payment_pct=down_payment_pct,
         mortgage_rate=mortgage_rate,
         mortgage_term_years=mortgage_term_years,
@@ -97,7 +99,7 @@ def run_for_city(
     results = run_simulation(inputs)
     output = results_to_dict(results, inputs)
     output["city"] = city["name"]
-    output["home_price"] = city["median_home_price"]
+    output["home_price"] = inputs.home_price
     output["monthly_rent"] = inputs.monthly_rent
     return output
 
