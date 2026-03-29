@@ -72,8 +72,15 @@ class SimulationInputs:
     n_simulations:       int   = 10_000
     distributions:       Distributions = field(default_factory=Distributions)
     renter_savings_rate: float = 1.0          # Fraction of surplus rent the renter keeps (default: all)
-    renter_keeps_down_payment: bool = False   # If True, renter starts with buyer's DP + closing cash
+    renter_keeps_down_payment: bool = True    # If True, renter starts with buyer's DP + closing cash
     invest_surplus:      bool  = False        # If True, surplus cash is invested at stock_return assumptions
+    # Additional cash-flow factors commonly used by rent vs buy calculators
+    pmi_rate:            float = 0.0          # Annual PMI rate on outstanding balance when LTV >= 80%
+    hoa_monthly:         float = 0.0          # HOA / common charges ($/mo)
+    utilities_delta:     float = 0.0          # Extra monthly utilities owners pay vs renters ($/mo)
+    renter_insurance_monthly: float = 0.0     # Renter's insurance ($/mo)
+    renter_security_deposit_months: float = 1.0  # Months of rent held as deposit (returned at end)
+    renter_broker_fee_pct: float = 0.0        # Percent of annual rent paid upfront to broker
 
 
 # ──────────────────────────────────────────────
@@ -165,7 +172,7 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
     rent_infl   = rng.normal(d.rent_inflation_mean,    d.rent_inflation_std,    (N, T))
     maint_pct   = np.clip(
         rng.normal(d.maintenance_pct_mean, d.maintenance_pct_std, (N, T)),
-        0.005, None,
+        0.0, None,
     )
     stock_ret   = rng.normal(d.stock_return_mean, d.stock_return_std, (N, T))
 
@@ -173,7 +180,11 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
     down_payment = inputs.home_price * inputs.down_payment_pct
     loan_amount  = inputs.home_price - down_payment
     monthly_pmt  = monthly_mortgage_payment(loan_amount, inputs.mortgage_rate, inputs.mortgage_term_years)
+    term_months  = inputs.mortgage_term_years * 12
     closing_buy  = inputs.home_price * inputs.closing_cost_buy_pct
+    # Security deposit (returned at end) and broker fee (not returned)
+    renter_deposit = inputs.monthly_rent * inputs.renter_security_deposit_months
+    renter_broker_fee = inputs.renter_broker_fee_pct * inputs.monthly_rent * 12
 
     # ---- Year-by-year arrays ----
     # Track wealth at end of each year for percentile bands
@@ -187,42 +198,69 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
     monthly_rent   = np.full(N, inputs.monthly_rent, dtype=np.float64)
 
     # Initial cash outlay for buyer: down payment + closing costs
-    # Optionally give the renter that same cash (default: they do keep it).
+    # Upfront flows
+    # Buyer: pays closing costs immediately.
+    buy_portfolio[:] -= closing_buy
+    # Renter: optionally receives the buyer's upfront cash; always pays deposit + broker.
     if inputs.renter_keeps_down_payment:
         rent_portfolio[:] = down_payment + closing_buy
+    rent_portfolio[:] -= renter_deposit + renter_broker_fee
 
     for t in range(T):
         # ---- Home appreciation ----
-        home_value *= (1 + home_appr[:, t])
+        home_value *= np.clip((1 + home_appr[:, t]), 0.0, None)
 
         # ---- Annual costs for the BUYER (expressed monthly) ----
         annual_prop_tax  = home_value * inputs.annual_property_tax_rate
         annual_insurance = home_value * inputs.annual_insurance_rate
         annual_maint     = home_value * maint_pct[:, t]
 
-        buyer_monthly_cost = (
-            monthly_pmt
-            + annual_prop_tax / 12
+        # Private mortgage insurance until LTV < 80%
+        remaining_balance_for_pmi = loan_amount  # updated below per month via balance helper
+        pmi_monthly = 0.0
+        if inputs.pmi_rate > 0 and inputs.down_payment_pct < 0.20:
+            # Approximated each year using current LTV; recomputed monthly inside loop.
+            pass
+
+        base_owner_cost = (
+            annual_prop_tax / 12
             + annual_insurance / 12
             + annual_maint / 12
+            + inputs.hoa_monthly
+            + inputs.utilities_delta
         )
-
-        # ---- Monthly cost difference ----
-        #   positive → renter has leftover cash to keep/invest (may spend most)
-        #   negative → buyer has leftover cash to keep/invest
-        diff = buyer_monthly_cost - monthly_rent
-
-        renter_monthly_save = np.maximum(diff, 0) * inputs.renter_savings_rate
-        buyer_monthly_save  = np.maximum(-diff, 0)
 
         # ---- Grow/save portfolios monthly ----
         monthly_return = (stock_ret[:, t] / 12) if inputs.invest_surplus else 0.0
         for _month in range(12):
+            months_elapsed = t * 12 + (_month + 1)
+            # PMI applied monthly until LTV < 80%
+            if inputs.pmi_rate > 0 and inputs.down_payment_pct < 0.20:
+                remaining_balance_for_pmi = mortgage_balance_after(
+                    loan_amount, inputs.mortgage_rate, inputs.mortgage_term_years, months_elapsed
+                )
+                ltv = np.divide(remaining_balance_for_pmi, home_value, out=np.zeros_like(home_value), where=home_value > 0)
+                pmi_monthly = np.where(ltv >= 0.80, remaining_balance_for_pmi * inputs.pmi_rate / 12, 0.0)
+            else:
+                pmi_monthly = 0.0
+
+            mortgage_component = 0.0 if months_elapsed > term_months else monthly_pmt
+            adjusted_buyer_cost = base_owner_cost + mortgage_component + pmi_monthly
+            adjusted_rent_cost  = monthly_rent + inputs.renter_insurance_monthly
+
+            diff = adjusted_buyer_cost - adjusted_rent_cost
+            renter_monthly_save = np.maximum(diff, 0) * inputs.renter_savings_rate
+            buyer_monthly_save  = np.maximum(-diff, 0)
+
             rent_portfolio = rent_portfolio * (1 + monthly_return) + renter_monthly_save
             buy_portfolio  = buy_portfolio  * (1 + monthly_return) + buyer_monthly_save
 
+            # After the mortgage is paid off, redirect the freed-up payment into investments
+            if months_elapsed > term_months:
+                buy_portfolio += monthly_pmt
+
         # ---- Rent inflation for next year ----
-        monthly_rent *= (1 + rent_infl[:, t])
+        monthly_rent *= np.clip((1 + rent_infl[:, t]), 0.0, None)
 
         # ---- Snapshot wealth at end of year t ----
         months_elapsed = (t + 1) * 12
@@ -235,6 +273,9 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
 
         buy_wealth_yearly[:, t]  = buy_equity.ravel()
         rent_wealth_yearly[:, t] = rent_portfolio
+
+    # Add security deposit back at the end of the horizon
+    rent_wealth_yearly[:, -1] += renter_deposit
 
     # ──── Final results ────
     final_buy  = buy_wealth_yearly[:, -1]

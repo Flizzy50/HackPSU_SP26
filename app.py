@@ -9,8 +9,9 @@ from city_data import list_cities
 from engine import Distributions
 
 # ── Gemini API setup ──
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyAcCsmpD3ssEpU7a-sWZCSiHvpcm9Z97Vc")
-genai.configure(api_key=GEMINI_API_KEY)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # ── Page config ──
 st.set_page_config(page_title="RentOrOwn", page_icon="🏠", layout="wide")
@@ -22,7 +23,8 @@ st.markdown("""
 
     /* ── Global ── */
     .stApp {
-        background: #f8f9fb;
+        background: #0b1220;
+        color: #e5e7eb;
     }
     .block-container {
         padding-top: 1.5rem;
@@ -38,36 +40,36 @@ st.markdown("""
         font-family: 'IBM Plex Sans', -apple-system, sans-serif !important;
         font-size: 2rem !important;
         font-weight: 700 !important;
-        color: #0f2b46 !important;
+        color: #e5e7eb !important;
         letter-spacing: -0.5px;
         margin-bottom: 0 !important;
     }
     .block-container h1 {
-        border-bottom: 3px solid #e8590c;
+        border-bottom: 3px solid #f97316;
         display: inline-block;
         padding-bottom: 4px;
     }
     h2 {
         font-size: 1.3rem !important;
         font-weight: 700 !important;
-        color: #0f2b46 !important;
+        color: #e5e7eb !important;
         letter-spacing: -0.3px;
         text-transform: uppercase;
-        border-left: 4px solid #e8590c;
+        border-left: 4px solid #f97316;
         padding-left: 12px;
         margin-top: 0.5rem !important;
     }
     h3 {
         font-size: 1rem !important;
         font-weight: 600 !important;
-        color: #1a3a5c !important;
+        color: #cbd5e1 !important;
     }
 
     /* ── Subtitle ── */
     .subtitle {
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 0.95rem;
-        color: #5a6f85;
+        color: #94a3b8;
         margin-top: 2px;
         margin-bottom: 1.5rem;
     }
@@ -75,8 +77,8 @@ st.markdown("""
     /* ── City badge ── */
     .city-badge {
         display: inline-block;
-        background: #0f2b46;
-        color: #ffffff;
+        background: #111827;
+        color: #e5e7eb;
         font-family: 'IBM Plex Mono', monospace;
         font-size: 0.85rem;
         font-weight: 500;
@@ -86,14 +88,14 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     .city-badge .accent {
-        color: #e8590c;
+        color: #f97316;
     }
 
     /* ── Metric cards ── */
     [data-testid="stMetric"] {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
-        border-top: 3px solid #0f2b46;
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-top: 3px solid #f97316;
         border-radius: 2px;
         padding: 1rem 1.2rem;
     }
@@ -101,7 +103,7 @@ st.markdown("""
         font-family: 'IBM Plex Sans', sans-serif !important;
         font-size: 0.7rem !important;
         font-weight: 600 !important;
-        color: #5a6f85 !important;
+        color: #9ca3af !important;
         text-transform: uppercase;
         letter-spacing: 1.2px;
     }
@@ -109,12 +111,12 @@ st.markdown("""
         font-family: 'IBM Plex Mono', monospace !important;
         font-size: 1.6rem !important;
         font-weight: 600 !important;
-        color: #0f2b46 !important;
+        color: #e5e7eb !important;
     }
 
     /* ── Sidebar ── */
     [data-testid="stSidebar"] {
-        background: #0f2b46;
+        background: #0b1220;
         border-right: none;
     }
     [data-testid="stSidebar"] > div:first-child {
@@ -123,7 +125,7 @@ st.markdown("""
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] h3 {
-        color: #ffffff !important;
+        color: #e5e7eb !important;
         border: none;
         padding-left: 0;
         margin-top: 0 !important;
@@ -138,16 +140,16 @@ st.markdown("""
     }
     [data-testid="stSidebar"] .stSelectbox > div > div,
     [data-testid="stSidebar"] .stNumberInput input {
-        background: rgba(255,255,255,0.08) !important;
-        color: #ffffff !important;
-        border-color: rgba(255,255,255,0.15) !important;
+        background: rgba(255,255,255,0.06) !important;
+        color: #e5e7eb !important;
+        border-color: rgba(255,255,255,0.12) !important;
     }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span {
-        color: rgba(255,255,255,0.7) !important;
+        color: rgba(229,231,235,0.75) !important;
     }
     /* Slider thumb + track */
     [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"] {
-        background: #e8590c !important;
+        background: #f97316 !important;
     }
     [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMin"],
     [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMax"] {
@@ -177,28 +179,28 @@ st.markdown("""
 
     /* ── Dividers ── */
     hr {
-        border-color: #e1e5eb !important;
+        border-color: #1f2937 !important;
         margin: 1rem 0 !important;
     }
 
     /* ── Plotly containers ── */
     [data-testid="stPlotlyChart"] {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
+        background: #0f172a;
+        border: 1px solid #1f2937;
         border-radius: 2px;
         padding: 0.3rem;
     }
 
     /* ── Summary box ── */
     .summary-box {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
-        border-left: 4px solid #e8590c;
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-left: 4px solid #f97316;
         padding: 1.2rem 1.4rem;
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 0.95rem;
         line-height: 1.7;
-        color: #1a3a5c;
+        color: #e5e7eb;
     }
 
     /* ── Landing: steps ── */
@@ -226,26 +228,26 @@ st.markdown("""
 
     /* ── City cards ── */
     .city-card {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
+        background: #111827;
+        border: 1px solid #1f2937;
         border-radius: 2px;
         padding: 0.8rem 1rem;
         margin-bottom: 0.6rem;
         transition: border-color 0.2s ease;
     }
     .city-card:hover {
-        border-left: 3px solid #e8590c;
+        border-left: 3px solid #f97316;
     }
     .city-name {
         font-family: 'IBM Plex Sans', sans-serif;
         font-weight: 600;
-        color: #0f2b46;
+        color: #e5e7eb;
         font-size: 0.9rem;
         margin-bottom: 2px;
     }
     .city-price {
         font-family: 'IBM Plex Mono', monospace;
-        color: #5a6f85;
+        color: #94a3b8;
         font-size: 0.8rem;
     }
 
@@ -253,11 +255,11 @@ st.markdown("""
     .data-footer {
         font-family: 'IBM Plex Mono', monospace;
         font-size: 0.7rem;
-        color: #8e9baa;
+        color: #9ca3af;
         letter-spacing: 0.5px;
         text-align: center;
         padding: 1.5rem 0 0.5rem;
-        border-top: 1px solid #e1e5eb;
+        border-top: 1px solid #1f2937;
         margin-top: 2rem;
     }
 
@@ -312,7 +314,7 @@ st.markdown("""
         font-family: 'IBM Plex Sans', sans-serif !important;
         font-size: 2.8rem !important;
         font-weight: 700 !important;
-        color: #0f2b46 !important;
+        color: #e5e7eb !important;
         letter-spacing: -1.5px;
         border: none !important;
         padding: 0 !important;
@@ -320,12 +322,12 @@ st.markdown("""
         line-height: 1.1;
     }
     .landing-hero .hero-accent {
-        color: #e8590c;
+        color: #38bdf8;
     }
     .landing-tagline {
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 1.15rem;
-        color: #5a6f85;
+        color: #cbd5e1;
         margin-bottom: 0.5rem;
     }
     .landing-stat-row {
@@ -342,13 +344,13 @@ st.markdown("""
         font-family: 'IBM Plex Mono', monospace;
         font-size: 2rem;
         font-weight: 700;
-        color: #0f2b46;
+        color: #38bdf8;
         animation: countUp 0.6s ease-out 0.5s both;
     }
     .landing-stat-label {
         font-family: 'IBM Plex Sans', sans-serif;
         font-size: 0.75rem;
-        color: #8e9baa;
+        color: #cbd5e1;
         text-transform: uppercase;
         letter-spacing: 1.5px;
         margin-top: 2px;
@@ -514,12 +516,30 @@ with st.sidebar:
         value=7.0, step=0.1,
     )
 
-    mortgage_term = st.selectbox("Mortgage Term", [15, 30], index=1)
+    mortgage_term = st.slider(
+        "Mortgage Term (years)",
+        min_value=5, max_value=40, value=30, step=1,
+    )
 
     monthly_rent_input = st.number_input(
         "Monthly Rent ($)", min_value=200, max_value=20_000,
         value=default_rent, step=100,
         help="City mode will use this instead of the preset median."
+    )
+
+    st.markdown("**Owner / renter extras**")
+    pmi_rate_pct = st.slider(
+        "PMI (annual %, until 20% equity)", 0.0, 2.0, 0.0, 0.05,
+        help="Private mortgage insurance applies when down payment is under 20% and falls off once LTV drops below 80%."
+    )
+    hoa_monthly = st.number_input(
+        "HOA / Condo Fees ($/mo)", min_value=0.0, max_value=5_000.0,
+        value=0.0, step=25.0,
+    )
+    renter_insurance = st.number_input(
+        "Renter's Insurance ($/mo)", min_value=0.0, max_value=1_000.0,
+        value=0.0, step=5.0,
+        help="Typical range $10-$30/mo for basic policies."
     )
 
     st.markdown("**What will you do with the savings?**")
@@ -539,7 +559,7 @@ with st.sidebar:
 
     time_horizon = st.slider(
         "How long do you plan to stay? (years)",
-        min_value=1, max_value=30, value=7,
+        min_value=1, max_value=50, value=7,
         help="This is the single most important variable",
     )
 
@@ -559,23 +579,23 @@ def build_histogram(results):
     fig = go.Figure()
     fig.add_trace(go.Histogram(
         x=buy_wins, nbinsx=60, name="Buying Wins",
-        marker_color="#0f2b46", opacity=0.85,
+        marker_color="#38bdf8", opacity=0.85,
     ))
     fig.add_trace(go.Histogram(
         x=rent_wins, nbinsx=60, name="Renting Wins",
-        marker_color="#e8590c", opacity=0.85,
+        marker_color="#f97316", opacity=0.85,
     ))
-    fig.add_vline(x=0, line_dash="dash", line_color="#0f2b46", line_width=2)
+    fig.add_vline(x=0, line_dash="dash", line_color="#e5e7eb", line_width=2)
     fig.update_layout(
-        title=dict(text="DISTRIBUTION OF OUTCOMES", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
+        title=dict(text="DISTRIBUTION OF OUTCOMES", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
         xaxis_title="Net Wealth Difference (Buy − Rent)",
         yaxis_title="Simulations",
         barmode="overlay", height=400,
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#1a2a3a"),
+        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
         legend=dict(x=0.02, y=0.98, font=dict(size=10)),
-        xaxis=dict(tickformat="$,.0f", gridcolor="#e1e5eb", zerolinecolor="#0f2b46"),
-        yaxis=dict(gridcolor="#e1e5eb"),
+        xaxis=dict(tickformat="$,.0f", gridcolor="#1f2937", zerolinecolor="#e5e7eb"),
+        yaxis=dict(gridcolor="#1f2937"),
         margin=dict(t=40, b=40, l=50, r=20),
     )
     return fig
@@ -591,37 +611,37 @@ def build_wealth_over_time(results):
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["buy_p75_trajectory"] + results["buy_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(15, 43, 70, 0.1)",
+        fill="toself", fillcolor="rgba(56, 189, 248, 0.12)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Rent confidence band
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["rent_p75_trajectory"] + results["rent_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(232, 89, 12, 0.1)",
+        fill="toself", fillcolor="rgba(249, 115, 22, 0.12)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Median lines
     fig.add_trace(go.Scatter(
         x=years, y=results["buy_median_trajectory"],
         mode="lines", name="Buy (Median)",
-        line=dict(color="#0f2b46", width=3),
+        line=dict(color="#38bdf8", width=3),
     ))
     fig.add_trace(go.Scatter(
         x=years, y=results["rent_median_trajectory"],
         mode="lines", name="Rent + Save (Median)",
-        line=dict(color="#e8590c", width=3),
+        line=dict(color="#f97316", width=3),
     ))
 
     fig.update_layout(
-        title=dict(text="WEALTH OVER TIME", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
+        title=dict(text="WEALTH OVER TIME", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
         xaxis_title="Year", yaxis_title="Net Wealth ($)",
         height=400,
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#000000"),
+        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
         legend=dict(x=0.02, y=0.98, font=dict(size=10)),
-        yaxis=dict(tickformat="$,.0f", gridcolor="#e1e5eb"),
-        xaxis=dict(gridcolor="#e1e5eb"),
+        yaxis=dict(tickformat="$,.0f", gridcolor="#1f2937"),
+        xaxis=dict(gridcolor="#1f2937"),
         margin=dict(t=40, b=40, l=60, r=20),
     )
     return fig
@@ -653,14 +673,14 @@ def build_sensitivity_chart(sensitivity):
         textfont=dict(family="IBM Plex Mono, Courier New, monospace", size=11, color="#1a2a3a"),
     ))
     fig.update_layout(
-        title=dict(text="SENSITIVITY ANALYSIS", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#1a2a3a")),
+        title=dict(text="SENSITIVITY ANALYSIS", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
         xaxis_title="Correlation with Outcome",
         height=380,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#1a2a3a"),
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
         yaxis=dict(autorange="reversed"),
-        xaxis=dict(zeroline=True, zerolinecolor="#0f2b46", zerolinewidth=1,
-                   gridcolor="#e1e5eb"),
+        xaxis=dict(zeroline=True, zerolinecolor="#e5e7eb", zerolinewidth=1,
+               gridcolor="#1f2937"),
         margin=dict(t=40, b=40, l=120, r=20),
     )
     return fig
@@ -699,24 +719,88 @@ Write exactly 4 sentences:
 
 Do NOT include disclaimers or caveats."""
 
-    for model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"]:
+    if not GEMINI_API_KEY:
+        print("[WARN] GEMINI_API_KEY not set -- skipping AI summary")
+        return None
+
+    for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
         try:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt)
             if response and response.text:
                 return response.text
-        except Exception:
+        except Exception as e:
+            print(f"[WARN] Gemini {model_name} failed: {e}")
             continue
     return None
 
 
-# ──────────────────────────────────────────────
-# MAIN DISPLAY
-# ──────────────────────────────────────────────
+def build_chat_context(results, home_price, monthly_rent, down_payment_pct, mortgage_rate,
+                       mortgage_term, time_horizon, strategy_label, selected_city_name):
+    """Flatten the simulation results into a concise context string for chat."""
+    be = results.get("breakeven_year")
+    sensitivity = results.get("sensitivity", {})
+    top_sensitivity = sorted(sensitivity.items(), key=lambda x: abs(x[1]), reverse=True)
+    top_sensitivity_str = ", ".join([f"{k}: {v:+.3f}" for k, v in top_sensitivity[:4]])
+
+    return (
+        f"City: {selected_city_name}; Home price: ${home_price:,.0f}; "
+        f"Down payment: {down_payment_pct}%; Rate: {mortgage_rate}%; Term: {mortgage_term} years; "
+        f"Rent alternative: ${monthly_rent:,.0f}; Horizon: {time_horizon} years; Savings plan: {strategy_label}. "
+        f"Buying wins {results.get('buy_wins_pct', 0):.1f}% of simulations; "
+        f"Median buy wealth ${results.get('median_buy', 0):,.0f}; Median rent wealth ${results.get('median_rent', 0):,.0f}; "
+        f"Median advantage ${results.get('median_advantage', 0):,.0f}; P10 advantage ${results.get('p10_advantage', 0):,.0f}; "
+        f"P90 advantage ${results.get('p90_advantage', 0):,.0f}; Break-even year: {be if be else 'None in horizon'}. "
+        f"Top sensitivities: {top_sensitivity_str if top_sensitivity_str else 'n/a'}."
+    )
+
+
+def get_gemini_chat_reply(user_message, chat_history, context_text):
+    """Chat-style Gemini response grounded in the current scenario."""
+    history_lines = []
+    for msg in chat_history:
+        speaker = "User" if msg["role"] == "user" else "Assistant"
+        history_lines.append(f"{speaker}: {msg['content']}")
+    history_block = "\n".join(history_lines) if history_lines else "None yet."
+
+    prompt = f"""You are a financial analyst helping someone interpret their rent vs buy simulation.
+Scenario context (use these numbers): {context_text}
+
+Conversation so far:
+{history_block}
+
+Latest user question: {user_message}
+
+Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. If asked beyond the provided data, say you only have this scenario's results."""
+
+    if not GEMINI_API_KEY:
+        print("[WARN] GEMINI_API_KEY not set -- skipping chat reply")
+        return None
+
+    for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            if response and response.text:
+                return response.text
+        except Exception as e:
+            print(f"[WARN] Gemini chat {model_name} failed: {e}")
+            continue
+    return None
+
+
+    # ─────────────────────────────────────────────
+    # MAIN DISPLAY
+    # ─────────────────────────────────────────────
+# Build a key for the current sidebar settings
+current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{pmi_rate_pct}|{hoa_monthly}|{renter_insurance}"
+
+results = None
+
 if run_button:
     with st.spinner("Running 10,000 simulations..."):
         dist = Distributions(stock_return_mean=strategy["mean"], stock_return_std=strategy["std"])
-        invest_flag = True  # always apply strategy; 0% just behaves like cash
+        invest_flag = strategy_label != "Nothing (0%)"
         if selected_city_key != "custom":
             results = run_for_city(
                 city_key=selected_city_key,
@@ -727,6 +811,9 @@ if run_button:
                 distributions=dist,
                 invest_surplus=invest_flag,
                 monthly_rent_override=monthly_rent_input,
+                pmi_rate=pmi_rate_pct / 100,
+                hoa_monthly=hoa_monthly,
+                renter_insurance_monthly=renter_insurance,
             )
         else:
             results = run_custom(
@@ -738,7 +825,52 @@ if run_button:
                 time_horizon_years=time_horizon,
                 distributions=dist,
                 invest_surplus=invest_flag,
+                pmi_rate=pmi_rate_pct / 100,
+                hoa_monthly=hoa_monthly,
+                renter_insurance_monthly=renter_insurance,
             )
+
+    # Cache the latest run so chat interactions don't drop back to landing
+    st.session_state["last_results"] = results
+    st.session_state["last_meta"] = {
+        "home_price": home_price,
+        "monthly_rent": monthly_rent_input,
+        "down_payment_pct": down_payment_pct,
+        "mortgage_rate": mortgage_rate,
+        "mortgage_term": mortgage_term,
+        "time_horizon": time_horizon,
+        "strategy_label": strategy_label,
+        "selected_city_name": selected_city_name,
+        "selected_city_key": selected_city_key,
+        "pmi_rate_pct": pmi_rate_pct,
+        "hoa_monthly": hoa_monthly,
+        "renter_insurance": renter_insurance,
+    }
+    st.session_state["last_scenario_key"] = current_scenario_key
+elif (
+    st.session_state.get("last_results")
+    and st.session_state.get("last_scenario_key") == current_scenario_key
+):
+    results = st.session_state["last_results"]
+
+
+if results is not None:
+    # Reset chat when scenario changes and store the current context
+    if st.session_state.get("scenario_key") != current_scenario_key:
+        st.session_state["scenario_key"] = current_scenario_key
+        st.session_state["chat_history"] = []
+
+    st.session_state["chat_context"] = build_chat_context(
+        results,
+        home_price,
+        monthly_rent_input,
+        down_payment_pct,
+        mortgage_rate,
+        mortgage_term,
+        time_horizon,
+        strategy_label,
+        selected_city_name,
+    )
 
     # ── Key metrics ──
     st.markdown("## Results")
@@ -779,7 +911,7 @@ if run_button:
 
         # Try Gemini
         summary = get_gemini_summary(
-            results, home_price, monthly_rent, down_payment_pct,
+            results, home_price, monthly_rent_input, down_payment_pct,
             mortgage_rate, time_horizon, selected_city_name
         )
 
@@ -804,7 +936,32 @@ if run_button:
             st.markdown(f'<div class="summary-box">{fallback}</div>', unsafe_allow_html=True)
 
         st.markdown("")
-        st.caption("AI summary powered by Google Gemini · Not financial advice · Built on historical data from FHFA, BLS, and S&P 500")
+        st.caption("AI summary powered by Google Gemini · Not financial advice · Uses stochastic assumptions informed by long-run housing, rent, and equity data")
+
+        st.markdown("---")
+        st.subheader("Chat About Your Results")
+
+        if "chat_history" not in st.session_state:
+            st.session_state["chat_history"] = []
+
+        for msg in st.session_state["chat_history"]:
+            with st.chat_message("user" if msg["role"] == "user" else "assistant"):
+                st.markdown(msg["content"])
+
+        user_question = st.chat_input("Ask a follow-up about this scenario")
+        if user_question:
+            st.session_state["chat_history"].append({"role": "user", "content": user_question})
+            with st.spinner("Gemini is thinking..."):
+                reply = get_gemini_chat_reply(
+                    user_question,
+                    st.session_state["chat_history"],
+                    st.session_state.get("chat_context", ""),
+                )
+            if reply:
+                st.session_state["chat_history"].append({"role": "assistant", "content": reply})
+                st.rerun()
+            else:
+                st.error("Gemini is unavailable right now. Please try again in a moment.")
 
 else:
     # ── Animated Landing Page ──
