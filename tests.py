@@ -14,6 +14,7 @@ from engine import (
     Distributions,
 )
 from city_data import get_city, list_cities
+from api import run_for_city
 
 
 # ──────────────────────────────────────────────
@@ -136,6 +137,82 @@ def test_sensitivity_has_expected_keys():
 
 
 # ──────────────────────────────────────────────
+# Fairness / cash symmetry tests
+# ──────────────────────────────────────────────
+
+
+def test_closing_costs_reduce_buyer_wealth():
+    """Buyer wealth should drop by the purchase closing costs."""
+    dist = Distributions(
+        home_appreciation_mean=0.0, home_appreciation_std=0.0,
+        rent_inflation_mean=0.0, rent_inflation_std=0.0,
+        maintenance_pct_mean=0.0, maintenance_pct_std=0.0,
+    )
+    inputs = SimulationInputs(
+        home_price=100_000,
+        down_payment_pct=1.0,  # pay cash to avoid mortgage/PMI noise
+        mortgage_rate=0.0,
+        mortgage_term_years=30,
+        monthly_rent=0.0,
+        annual_property_tax_rate=0.0,
+        annual_insurance_rate=0.0,
+        closing_cost_buy_pct=0.03,
+        closing_cost_sell_pct=0.0,
+        time_horizon_years=1,
+        n_simulations=50,
+        distributions=dist,
+        invest_surplus=False,
+        renter_savings_rate=0.0,
+    )
+    results = run_simulation(inputs)
+    assert abs(results.median_buy - 97_000) < 1.0, f"Expected closing costs to reduce wealth to 97k, got {results.median_buy:,.2f}"
+    print(f"  [OK] Closing costs reduce buyer wealth: ${results.median_buy:,.0f}")
+
+
+def test_renter_gets_down_payment_by_default():
+    """Default should hand renter the buyer's upfront cash when comparing paths."""
+    dist = Distributions(
+        home_appreciation_mean=0.0, home_appreciation_std=0.0,
+        rent_inflation_mean=0.0, rent_inflation_std=0.0,
+        maintenance_pct_mean=0.0, maintenance_pct_std=0.0,
+    )
+    monthly_pmt = 222.22
+    inputs = SimulationInputs(
+        home_price=100_000,
+        down_payment_pct=0.20,
+        mortgage_rate=0.0,
+        mortgage_term_years=30,
+        monthly_rent=monthly_pmt,
+        annual_property_tax_rate=0.0,
+        annual_insurance_rate=0.0,
+        closing_cost_buy_pct=0.03,
+        closing_cost_sell_pct=0.0,
+        time_horizon_years=1,
+        n_simulations=50,
+        distributions=dist,
+        invest_surplus=False,
+    )
+    results = run_simulation(inputs)
+    expected_renter_cash = 100_000 * 0.20 + 100_000 * 0.03
+    assert abs(results.median_rent - expected_renter_cash) < 5.0, (
+        f"Expected renter to keep upfront cash (~{expected_renter_cash}), got {results.median_rent:,.2f}"
+    )
+    print(f"  [OK] Renter keeps upfront cash by default: ${results.median_rent:,.0f}")
+
+
+def test_city_monthly_rent_override_reflected_in_output():
+    """Override rent in city mode should flow through to the output payload."""
+    out = run_for_city(
+        city_key="state_college_pa",
+        monthly_rent_override=1234,
+        n_simulations=200,
+        time_horizon_years=1,
+    )
+    assert out["monthly_rent"] == 1234, f"Override rent not reflected: {out['monthly_rent']}"
+    print("  [OK] Monthly rent override reflected in output")
+
+
+# ──────────────────────────────────────────────
 # City data tests
 # ──────────────────────────────────────────────
 
@@ -187,6 +264,9 @@ if __name__ == "__main__":
         test_simulation_short_horizon,
         test_simulation_long_horizon,
         test_sensitivity_has_expected_keys,
+        test_closing_costs_reduce_buyer_wealth,
+        test_renter_gets_down_payment_by_default,
+        test_city_monthly_rent_override_reflected_in_output,
         test_city_data,
         test_city_to_engine,
     ]

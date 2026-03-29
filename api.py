@@ -56,9 +56,12 @@ def run_for_city(
     n_simulations: int = 10_000,
     distributions: Distributions | None = None,
     renter_savings_rate: float = 1.0,
-    renter_keeps_down_payment: bool = False,
-    invest_surplus: bool = False,
+    renter_keeps_down_payment: bool = True,
+    invest_surplus: bool = True,
     monthly_rent_override: float | None = None,
+    pmi_rate: float = 0.0,
+    hoa_monthly: float = 0.0,
+    renter_insurance_monthly: float = 0.0,
 ) -> dict:
     """
     Run simulation using a preset city's data.
@@ -81,13 +84,16 @@ def run_for_city(
         renter_savings_rate=renter_savings_rate,
         renter_keeps_down_payment=renter_keeps_down_payment,
         invest_surplus=invest_surplus,
+        pmi_rate=pmi_rate,
+        hoa_monthly=hoa_monthly,
+        renter_insurance_monthly=renter_insurance_monthly,
     )
 
     results = run_simulation(inputs)
     output = results_to_dict(results, inputs)
     output["city"] = city["name"]
     output["home_price"] = city["median_home_price"]
-    output["monthly_rent"] = city["median_rent"]
+    output["monthly_rent"] = inputs.monthly_rent
     return output
 
 
@@ -103,8 +109,11 @@ def run_custom(
     n_simulations: int = 10_000,
     distributions: Distributions | None = None,
     renter_savings_rate: float = 1.0,
-    renter_keeps_down_payment: bool = False,
+    renter_keeps_down_payment: bool = True,
     invest_surplus: bool = False,
+    pmi_rate: float = 0.0,
+    hoa_monthly: float = 0.0,
+    renter_insurance_monthly: float = 0.0,
 ) -> dict:
     """
     Run simulation with fully custom inputs (no city preset).
@@ -126,6 +135,9 @@ def run_custom(
         renter_savings_rate=renter_savings_rate,
         renter_keeps_down_payment=renter_keeps_down_payment,
         invest_surplus=invest_surplus,
+        pmi_rate=pmi_rate,
+        hoa_monthly=hoa_monthly,
+        renter_insurance_monthly=renter_insurance_monthly,
     )
 
     results = run_simulation(inputs)
