@@ -73,7 +73,9 @@ class SimulationInputs:
     distributions:       Distributions = field(default_factory=Distributions)
     renter_savings_rate: float = 1.0          # Fraction of surplus rent the renter keeps (default: all)
     renter_keeps_down_payment: bool = True    # If True, renter starts with buyer's DP + closing cash
-    invest_surplus:      bool  = False        # If True, surplus cash is invested at stock_return assumptions
+    invest_surplus:      bool  = False        # Legacy toggle: when True, both sides invest surplus
+    buyer_invest_surplus: bool = False        # Buyer invests surplus cash at stock_return assumptions
+    renter_invest_surplus: bool = False       # Renter invests surplus cash at stock_return assumptions
     # Additional cash-flow factors commonly used by rent vs buy calculators
     pmi_rate:            float = 0.0          # Annual PMI rate on outstanding balance when LTV >= 80%
     hoa_monthly:         float = 0.0          # HOA / common charges ($/mo)
@@ -201,9 +203,9 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
     # Upfront flows
     # Buyer: pays closing costs immediately.
     buy_portfolio[:] -= closing_buy
-    # Renter: optionally receives the buyer's upfront cash; always pays deposit + broker.
-    if inputs.renter_keeps_down_payment:
-        rent_portfolio[:] = down_payment + closing_buy
+    # Renter parity: always start renter with the buyer's upfront cash
+    # so the comparison isn't driven by a single flag.
+    rent_portfolio[:] = down_payment + closing_buy
     rent_portfolio[:] -= renter_deposit + renter_broker_fee
 
     for t in range(T):
@@ -231,7 +233,10 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
         )
 
         # ---- Grow/save portfolios monthly ----
-        monthly_return = (stock_ret[:, t] / 12) if inputs.invest_surplus else 0.0
+        buyer_invest_flag = inputs.buyer_invest_surplus or inputs.invest_surplus
+        renter_invest_flag = inputs.renter_invest_surplus or inputs.invest_surplus
+        monthly_return_buyer = (stock_ret[:, t] / 12) if buyer_invest_flag else 0.0
+        monthly_return_renter = (stock_ret[:, t] / 12) if renter_invest_flag else 0.0
         for _month in range(12):
             months_elapsed = t * 12 + (_month + 1)
             # PMI applied monthly until LTV < 80%
@@ -252,8 +257,8 @@ def run_simulation(inputs: SimulationInputs) -> SimulationResults:
             renter_monthly_save = np.maximum(diff, 0) * inputs.renter_savings_rate
             buyer_monthly_save  = np.maximum(-diff, 0)
 
-            rent_portfolio = rent_portfolio * (1 + monthly_return) + renter_monthly_save
-            buy_portfolio  = buy_portfolio  * (1 + monthly_return) + buyer_monthly_save
+            rent_portfolio = rent_portfolio * (1 + monthly_return_renter) + renter_monthly_save
+            buy_portfolio  = buy_portfolio  * (1 + monthly_return_buyer) + buyer_monthly_save
 
             # After the mortgage is paid off, redirect the freed-up payment into investments
             if months_elapsed > term_months:
