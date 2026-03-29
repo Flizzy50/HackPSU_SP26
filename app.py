@@ -527,21 +527,6 @@ with st.sidebar:
         help="City mode will use this instead of the preset median."
     )
 
-    st.markdown("**Owner / renter extras**")
-    pmi_rate_pct = st.slider(
-        "PMI (annual %, until 20% equity)", 0.0, 2.0, 0.0, 0.05,
-        help="Private mortgage insurance applies when down payment is under 20% and falls off once LTV drops below 80%."
-    )
-    hoa_monthly = st.number_input(
-        "HOA / Condo Fees ($/mo)", min_value=0.0, max_value=5_000.0,
-        value=0.0, step=25.0,
-    )
-    renter_insurance = st.number_input(
-        "Renter's Insurance ($/mo)", min_value=0.0, max_value=1_000.0,
-        value=0.0, step=5.0,
-        help="Typical range $10-$30/mo for basic policies."
-    )
-
     st.markdown("**What will you do with the savings?**")
     strategy_label = st.selectbox(
         "Savings discipline",
@@ -556,6 +541,21 @@ with st.sidebar:
         "Invest in index funds (~10%)": {"mean": 0.10, "std": 0.16},
     }
     strategy = strategy_map[strategy_label]
+
+    buyer_invest = st.checkbox(
+        "Buyer invests surplus cash", value=True,
+        help=(
+            "When on: buyer monthly surplus and post-payoff mortgage dollars are invested at the stock return draw. "
+            "When off: buyer surplus stays as idle cash (no growth)."
+        ),
+    )
+    renter_invest = st.checkbox(
+        "Renter invests surplus cash", value=True,
+        help=(
+            "When on: renter monthly savings and the upfront parity cash (down payment + closing) are invested at the stock return draw. "
+            "When off: they remain as idle cash (no growth)."
+        ),
+    )
 
     time_horizon = st.slider(
         "How long do you plan to stay? (years)",
@@ -793,14 +793,13 @@ Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. 
     # MAIN DISPLAY
     # ─────────────────────────────────────────────
 # Build a key for the current sidebar settings
-current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{pmi_rate_pct}|{hoa_monthly}|{renter_insurance}"
+current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{buyer_invest}|{renter_invest}"
 
 results = None
 
 if run_button:
     with st.spinner("Running 10,000 simulations..."):
         dist = Distributions(stock_return_mean=strategy["mean"], stock_return_std=strategy["std"])
-        invest_flag = strategy_label != "Nothing (0%)"
         if selected_city_key != "custom":
             results = run_for_city(
                 city_key=selected_city_key,
@@ -809,11 +808,10 @@ if run_button:
                 mortgage_term_years=mortgage_term,
                 time_horizon_years=time_horizon,
                 distributions=dist,
-                invest_surplus=invest_flag,
+                invest_surplus=False,
+                buyer_invest_surplus=buyer_invest,
+                renter_invest_surplus=renter_invest,
                 monthly_rent_override=monthly_rent_input,
-                pmi_rate=pmi_rate_pct / 100,
-                hoa_monthly=hoa_monthly,
-                renter_insurance_monthly=renter_insurance,
             )
         else:
             results = run_custom(
@@ -824,10 +822,9 @@ if run_button:
                 mortgage_term_years=mortgage_term,
                 time_horizon_years=time_horizon,
                 distributions=dist,
-                invest_surplus=invest_flag,
-                pmi_rate=pmi_rate_pct / 100,
-                hoa_monthly=hoa_monthly,
-                renter_insurance_monthly=renter_insurance,
+                invest_surplus=False,
+                buyer_invest_surplus=buyer_invest,
+                renter_invest_surplus=renter_invest,
             )
 
     # Cache the latest run so chat interactions don't drop back to landing
@@ -840,11 +837,10 @@ if run_button:
         "mortgage_term": mortgage_term,
         "time_horizon": time_horizon,
         "strategy_label": strategy_label,
+        "buyer_invest": buyer_invest,
+        "renter_invest": renter_invest,
         "selected_city_name": selected_city_name,
         "selected_city_key": selected_city_key,
-        "pmi_rate_pct": pmi_rate_pct,
-        "hoa_monthly": hoa_monthly,
-        "renter_insurance": renter_insurance,
     }
     st.session_state["last_scenario_key"] = current_scenario_key
 elif (
