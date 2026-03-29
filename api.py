@@ -59,6 +59,9 @@ def run_for_city(
     pmi_rate: float = 0.0,
     hoa_monthly: float = 0.0,
     renter_insurance_monthly: float = 0.0,
+    utilities_delta: float = 0.0,
+    renter_security_deposit_months: float = 1.0,
+    renter_broker_fee_pct: float = 0.0,
 ) -> dict:
     """
     Run simulation using a preset city's data.
@@ -86,6 +89,9 @@ def run_for_city(
         pmi_rate=pmi_rate,
         hoa_monthly=hoa_monthly,
         renter_insurance_monthly=renter_insurance_monthly,
+        utilities_delta=utilities_delta,
+        renter_security_deposit_months=renter_security_deposit_months,
+        renter_broker_fee_pct=renter_broker_fee_pct,
     )
 
     results = run_simulation(inputs)
@@ -115,6 +121,9 @@ def run_custom(
     pmi_rate: float = 0.0,
     hoa_monthly: float = 0.0,
     renter_insurance_monthly: float = 0.0,
+    utilities_delta: float = 0.0,
+    renter_security_deposit_months: float = 1.0,
+    renter_broker_fee_pct: float = 0.0,
 ) -> dict:
     """
     Run simulation with fully custom inputs (no city preset).
@@ -141,6 +150,9 @@ def run_custom(
         pmi_rate=pmi_rate,
         hoa_monthly=hoa_monthly,
         renter_insurance_monthly=renter_insurance_monthly,
+        utilities_delta=utilities_delta,
+        renter_security_deposit_months=renter_security_deposit_months,
+        renter_broker_fee_pct=renter_broker_fee_pct,
     )
 
     results = run_simulation(inputs)
