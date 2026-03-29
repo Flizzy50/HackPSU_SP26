@@ -5,7 +5,7 @@ import google.generativeai as genai
 import os
 
 from api import run_for_city, run_custom
-from city_data import list_cities
+from city_data import list_cities, get_city
 from engine import Distributions
 
 # ── Gemini API setup ──
@@ -481,9 +481,9 @@ st.markdown("""
 st.title("RentOrOwn")
 st.markdown('<p class="subtitle">Every rent vs. buy calculator gives you one number. We give you 10,000.</p>', unsafe_allow_html=True)
 
-# ──────────────────────────────────────────────
+
 # SIDEBAR INPUTS
-# ──────────────────────────────────────────────
+
 with st.sidebar:
     st.header("Your Scenario")
 
@@ -566,10 +566,25 @@ with st.sidebar:
     st.markdown("---")
     run_button = st.button("Run 10,000 Simulations", type="primary", use_container_width=True)
 
+    # ── Compare Mode ──
+    st.markdown("---")
+    st.header("Compare Two Cities")
+    compare_city_names = [c["name"] for c in cities]
+    compare_city_keys = [c["key"] for c in cities]
 
-# ──────────────────────────────────────────────
+    comp_col1, comp_col2 = st.columns(2)
+    with comp_col1:
+        compare_a_name = st.selectbox("City A", compare_city_names, index=0, key="comp_a")
+    with comp_col2:
+        compare_b_name = st.selectbox("City B", compare_city_names, index=8, key="comp_b")  # NYC default
+
+    compare_horizon = st.slider("Compare Horizon (years)", 1, 30, 10, key="comp_horizon")
+    compare_button = st.button("Compare Cities", use_container_width=True)
+
+
+
 # CHART BUILDERS
-# ──────────────────────────────────────────────
+
 def build_histogram(results):
     """Histogram of buy vs rent final wealth distributions."""
     wealth_diff = np.array(results["buy_wealth_distribution"]) - np.array(results["rent_wealth_distribution"])
@@ -686,9 +701,8 @@ def build_sensitivity_chart(sensitivity):
     return fig
 
 
-# ──────────────────────────────────────────────
 # GEMINI SUMMARY
-# ──────────────────────────────────────────────
+
 def get_gemini_summary(results, home_price, monthly_rent, down_payment_pct,
                        mortgage_rate, time_horizon, selected_city_name):
     """Call Gemini API and return summary text. Returns None on failure."""
@@ -723,7 +737,7 @@ Do NOT include disclaimers or caveats."""
         print("[WARN] GEMINI_API_KEY not set -- skipping AI summary")
         return None
 
-    for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
+    for model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"]:
         try:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt)
@@ -777,7 +791,7 @@ Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. 
         print("[WARN] GEMINI_API_KEY not set -- skipping chat reply")
         return None
 
-    for model_name in ["gemini-2.5-flash", "gemini-2.0-flash"]:
+    for model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"]:
         try:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt)
@@ -789,15 +803,109 @@ Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. 
     return None
 
 
-    # ─────────────────────────────────────────────
+
     # MAIN DISPLAY
-    # ─────────────────────────────────────────────
+
 # Build a key for the current sidebar settings
 current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{buyer_invest}|{renter_invest}"
 
 results = None
+compare_active = False
 
-if run_button:
+# COMPARE MODE
+
+if compare_button:
+    compare_active = True
+    key_a = compare_city_keys[compare_city_names.index(compare_a_name)]
+    key_b = compare_city_keys[compare_city_names.index(compare_b_name)]
+    info_a = get_city(key_a)
+    info_b = get_city(key_b)
+
+    dist = Distributions(stock_return_mean=strategy["mean"], stock_return_std=strategy["std"])
+
+    with st.spinner(f"Simulating {compare_a_name} vs {compare_b_name}..."):
+        results_a = run_for_city(
+            city_key=key_a, down_payment_pct=down_payment_pct / 100,
+            mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
+            time_horizon_years=compare_horizon, distributions=dist,
+            invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
+        )
+        results_b = run_for_city(
+            city_key=key_b, down_payment_pct=down_payment_pct / 100,
+            mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
+            time_horizon_years=compare_horizon, distributions=dist,
+            invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
+        )
+
+    st.markdown("## City Comparison")
+    st.markdown(f"Both at **{compare_horizon}-year** horizon · **{down_payment_pct}%** down · **{mortgage_rate}%** rate")
+    st.markdown("---")
+
+    # Side by side metrics
+    col_left, col_divider, col_right = st.columns([5, 1, 5])
+
+    with col_left:
+        st.markdown(f"### {compare_a_name}")
+        st.markdown(f"`${info_a['median_home_price']:,.0f} home · ${info_a['median_rent']:,.0f}/mo rent`")
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.metric("Buy Wins", f"{results_a['buy_wins_pct']:.0f}%")
+        with m2:
+            be_a = results_a["breakeven_year"]
+            st.metric("Break-Even", f"Yr {be_a}" if be_a else "Never")
+        with m3:
+            med_a = results_a["median_advantage"]
+            st.metric("Median Edge", f"${med_a:,.0f}")
+        st.plotly_chart(build_wealth_over_time(results_a), use_container_width=True)
+
+    with col_divider:
+        st.markdown("<div style='border-left: 2px solid #e1e5eb; height: 500px; margin: 0 auto; width: 0;'></div>", unsafe_allow_html=True)
+
+    with col_right:
+        st.markdown(f"### {compare_b_name}")
+        st.markdown(f"`${info_b['median_home_price']:,.0f} home · ${info_b['median_rent']:,.0f}/mo rent`")
+        m4, m5, m6 = st.columns(3)
+        with m4:
+            st.metric("Buy Wins", f"{results_b['buy_wins_pct']:.0f}%")
+        with m5:
+            be_b = results_b["breakeven_year"]
+            st.metric("Break-Even", f"Yr {be_b}" if be_b else "Never")
+        with m6:
+            med_b = results_b["median_advantage"]
+            st.metric("Median Edge", f"${med_b:,.0f}")
+        st.plotly_chart(build_wealth_over_time(results_b), use_container_width=True)
+
+    # Head-to-head bar chart
+    st.markdown("---")
+    fig_compare = go.Figure()
+    categories = ["Buy Win %", "Median Buy Wealth", "Median Rent Wealth"]
+    fig_compare.add_trace(go.Bar(
+        name=compare_a_name,
+        x=categories,
+        y=[results_a["buy_wins_pct"], results_a["median_buy"], results_a["median_rent"]],
+        marker_color="#38bdf8",
+        text=[f"{results_a['buy_wins_pct']:.0f}%", f"${results_a['median_buy']:,.0f}", f"${results_a['median_rent']:,.0f}"],
+        textposition="outside",
+    ))
+    fig_compare.add_trace(go.Bar(
+        name=compare_b_name,
+        x=categories,
+        y=[results_b["buy_wins_pct"], results_b["median_buy"], results_b["median_rent"]],
+        marker_color="#f97316",
+        text=[f"{results_b['buy_wins_pct']:.0f}%", f"${results_b['median_buy']:,.0f}", f"${results_b['median_rent']:,.0f}"],
+        textposition="outside",
+    ))
+    fig_compare.update_layout(
+        title=dict(text="HEAD TO HEAD", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=14, color="#e5e7eb")),
+        barmode="group", height=400,
+        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
+        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
+        yaxis=dict(gridcolor="#1f2937", tickformat=",.0f"),
+        legend=dict(font=dict(size=12)),
+    )
+    st.plotly_chart(fig_compare, use_container_width=True)
+
+elif run_button:
     with st.spinner("Running 10,000 simulations..."):
         dist = Distributions(stock_return_mean=strategy["mean"], stock_return_std=strategy["std"])
         if selected_city_key != "custom":
@@ -959,7 +1067,7 @@ if results is not None:
             else:
                 st.error("Gemini is unavailable right now. Please try again in a moment.")
 
-else:
+elif not compare_active:
     # ── Animated Landing Page ──
 
     # Hero section

@@ -1,9 +1,4 @@
-"""
-API layer between the Streamlit frontend and the simulation engine.
-==================================================================
-Person B imports this module and calls `run_for_city()` or `run_custom()`.
-Returns plain dicts that are easy to feed into Plotly charts.
-"""
+
 
 from engine import SimulationInputs, Distributions, run_simulation, SimulationResults
 from city_data import get_city, list_cities
