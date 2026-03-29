@@ -19,71 +19,105 @@ st.set_page_config(page_title="RentOrOwn", page_icon="🏠", layout="wide")
 # ── Custom CSS ──
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+    /* ═══ PALETTE ═══
+       bg-deep:   #07090f    (near-black with blue undertone)
+       bg-panel:  #0d1117    (GitHub dark)
+       bg-card:   #141b27    (elevated surface)
+       border:    #1e2a3a    (subtle)
+       border-hi: #2a3a4f    (hover)
+       text-1:    #f0f4f8    (primary)
+       text-2:    #8899aa    (secondary)
+       text-3:    #556677    (tertiary)
+       buy:       #22d3ee    (cyan - signals "buying")
+       rent:      #f59e0b    (amber - signals "renting")
+       accent:    #f97316    (orange - CTAs)
+       positive:  #34d399    (green)
+       negative:  #f87171    (red)
+    ═══════════════════ */
 
     /* ── Global ── */
     .stApp {
-        background: #0b1220;
-        color: #e5e7eb;
+        background: #07090f;
+        color: #f0f4f8;
+        background-image:
+            linear-gradient(rgba(30, 42, 58, 0.15) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(30, 42, 58, 0.15) 1px, transparent 1px);
+        background-size: 40px 40px;
     }
     .block-container {
-        padding-top: 1.5rem;
+        padding-top: 1.2rem;
         padding-bottom: 1.5rem;
         max-width: 1200px;
     }
 
     /* ── Typography ── */
     h1, h2, h3, h4, p, span, label, div {
-        font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Libre Franklin', -apple-system, sans-serif;
     }
     h1 {
-        font-family: 'IBM Plex Sans', -apple-system, sans-serif !important;
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        color: #e5e7eb !important;
-        letter-spacing: -0.5px;
+        font-family: 'Libre Franklin', sans-serif !important;
+        font-size: 1.8rem !important;
+        font-weight: 900 !important;
+        color: #f0f4f8 !important;
+        letter-spacing: -1px;
         margin-bottom: 0 !important;
+        text-transform: uppercase;
     }
     .block-container h1 {
-        border-bottom: 3px solid #f97316;
+        border-bottom: none;
         display: inline-block;
-        padding-bottom: 4px;
+        padding-bottom: 0;
+        position: relative;
+    }
+    .block-container h1::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #22d3ee, #f97316);
     }
     h2 {
-        font-size: 1.3rem !important;
+        font-family: 'Libre Franklin', sans-serif !important;
+        font-size: 0.85rem !important;
         font-weight: 700 !important;
-        color: #e5e7eb !important;
-        letter-spacing: -0.3px;
+        color: #8899aa !important;
+        letter-spacing: 3px;
         text-transform: uppercase;
-        border-left: 4px solid #f97316;
-        padding-left: 12px;
+        border-left: 3px solid #22d3ee;
+        padding-left: 10px;
         margin-top: 0.5rem !important;
     }
     h3 {
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-        color: #cbd5e1 !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        color: #f0f4f8 !important;
+        letter-spacing: 0.5px;
     }
 
     /* ── Subtitle ── */
     .subtitle {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.95rem;
-        color: #94a3b8;
-        margin-top: 2px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.82rem;
+        color: #556677;
+        margin-top: 6px;
         margin-bottom: 1.5rem;
+        letter-spacing: 0.5px;
     }
 
     /* ── City badge ── */
     .city-badge {
         display: inline-block;
-        background: #111827;
-        color: #e5e7eb;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.85rem;
-        font-weight: 500;
-        padding: 6px 14px;
-        border-radius: 4px;
+        background: #141b27;
+        color: #f0f4f8;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.8rem;
+        font-weight: 400;
+        padding: 8px 16px;
+        border: 1px solid #1e2a3a;
         margin-bottom: 1rem;
         letter-spacing: 0.5px;
     }
@@ -93,31 +127,39 @@ st.markdown("""
 
     /* ── Metric cards ── */
     [data-testid="stMetric"] {
-        background: #111827;
-        border: 1px solid #1f2937;
-        border-top: 3px solid #f97316;
-        border-radius: 2px;
+        background: #0d1117;
+        border: 1px solid #1e2a3a;
+        border-radius: 0;
         padding: 1rem 1.2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    [data-testid="stMetric"]::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22d3ee 0%, #22d3ee 50%, transparent 50%);
     }
     [data-testid="stMetricLabel"] {
-        font-family: 'IBM Plex Sans', sans-serif !important;
-        font-size: 0.7rem !important;
-        font-weight: 600 !important;
-        color: #9ca3af !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 0.6rem !important;
+        font-weight: 400 !important;
+        color: #556677 !important;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
+        letter-spacing: 2px;
     }
     [data-testid="stMetricValue"] {
-        font-family: 'IBM Plex Mono', monospace !important;
-        font-size: 1.6rem !important;
-        font-weight: 600 !important;
-        color: #e5e7eb !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+        color: #f0f4f8 !important;
     }
 
     /* ── Sidebar ── */
     [data-testid="stSidebar"] {
-        background: #0b1220;
-        border-right: none;
+        background: #0d1117;
+        border-right: 1px solid #1e2a3a;
     }
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 1rem;
@@ -125,354 +167,323 @@ st.markdown("""
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] h3 {
-        color: #e5e7eb !important;
+        color: #f0f4f8 !important;
         border: none;
         padding-left: 0;
         margin-top: 0 !important;
     }
     [data-testid="stSidebar"] label {
-        font-family: 'IBM Plex Sans', sans-serif !important;
-        font-size: 0.75rem !important;
-        font-weight: 600 !important;
-        color: rgba(255,255,255,0.6) !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 0.65rem !important;
+        font-weight: 400 !important;
+        color: #556677 !important;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
     [data-testid="stSidebar"] .stSelectbox > div > div,
     [data-testid="stSidebar"] .stNumberInput input {
-        background: rgba(255,255,255,0.06) !important;
-        color: #e5e7eb !important;
-        border-color: rgba(255,255,255,0.12) !important;
+        background: #141b27 !important;
+        color: #f0f4f8 !important;
+        border-color: #1e2a3a !important;
+        font-family: 'Space Mono', monospace !important;
+        border-radius: 0 !important;
     }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span {
-        color: rgba(229,231,235,0.75) !important;
-    }
-    /* Slider thumb + track */
-    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[role="slider"] {
-        background: #f97316 !important;
-    }
-    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMin"],
-    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div[data-testid="stTickBarMax"] {
-        color: rgba(255,255,255,0.4) !important;
+        color: #8899aa !important;
     }
     .stSlider [data-baseweb="slider"] div[role="slider"] {
-        background: #e8590c !important;
+        background: #f97316 !important;
     }
 
-    /* ── Button ── */
+    /* ── Buttons ── */
     .stButton > button {
-        background: #e8590c !important;
+        background: linear-gradient(135deg, #f97316, #ea580c) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 4px !important;
-        font-family: 'IBM Plex Sans', sans-serif !important;
+        border-radius: 0 !important;
+        font-family: 'Space Mono', monospace !important;
         font-weight: 700 !important;
-        font-size: 0.85rem !important;
-        padding: 0.75rem 1.5rem !important;
+        font-size: 0.75rem !important;
+        padding: 0.8rem 1.5rem !important;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        transition: all 0.2s ease !important;
+        letter-spacing: 2px;
+        transition: all 0.15s ease !important;
+        box-shadow: 0 0 20px rgba(249, 115, 22, 0.15) !important;
     }
     .stButton > button:hover {
-        background: #c84a0a !important;
+        box-shadow: 0 0 30px rgba(249, 115, 22, 0.3) !important;
+        transform: translateY(-1px) !important;
     }
 
     /* ── Dividers ── */
     hr {
-        border-color: #1f2937 !important;
+        border-color: #1e2a3a !important;
         margin: 1rem 0 !important;
     }
 
     /* ── Plotly containers ── */
     [data-testid="stPlotlyChart"] {
-        background: #0f172a;
-        border: 1px solid #1f2937;
-        border-radius: 2px;
+        background: #0d1117;
+        border: 1px solid #1e2a3a;
+        border-radius: 0;
         padding: 0.3rem;
     }
 
     /* ── Summary box ── */
     .summary-box {
-        background: #111827;
-        border: 1px solid #1f2937;
-        border-left: 4px solid #f97316;
+        background: #0d1117;
+        border: 1px solid #1e2a3a;
+        border-left: 3px solid #22d3ee;
         padding: 1.2rem 1.4rem;
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.95rem;
+        font-family: 'Libre Franklin', sans-serif;
+        font-size: 0.92rem;
         line-height: 1.7;
-        color: #e5e7eb;
-    }
-
-    /* ── Landing: steps ── */
-    .step-number {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #e8590c;
-        line-height: 1;
-        margin-bottom: 6px;
-    }
-    .step-title {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0f2b46;
-        margin-bottom: 4px;
-    }
-    .step-desc {
-        font-family: 'IBM Plex Sans', sans-serif;
-        color: #5a6f85;
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-
-    /* ── City cards ── */
-    .city-card {
-        background: #111827;
-        border: 1px solid #1f2937;
-        border-radius: 2px;
-        padding: 0.8rem 1rem;
-        margin-bottom: 0.6rem;
-        transition: border-color 0.2s ease;
-    }
-    .city-card:hover {
-        border-left: 3px solid #f97316;
-    }
-    .city-name {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-weight: 600;
-        color: #e5e7eb;
-        font-size: 0.9rem;
-        margin-bottom: 2px;
-    }
-    .city-price {
-        font-family: 'IBM Plex Mono', monospace;
-        color: #94a3b8;
-        font-size: 0.8rem;
-    }
-
-    /* ── Footer ── */
-    .data-footer {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.7rem;
-        color: #9ca3af;
-        letter-spacing: 0.5px;
-        text-align: center;
-        padding: 1.5rem 0 0.5rem;
-        border-top: 1px solid #1f2937;
-        margin-top: 2rem;
+        color: #f0f4f8;
     }
 
     /* ── Captions ── */
     .stCaption {
-        color: #8e9baa !important;
-        font-family: 'IBM Plex Sans', sans-serif !important;
-        font-size: 0.75rem !important;
+        color: #556677 !important;
+        font-family: 'Space Mono', monospace !important;
+        font-size: 0.65rem !important;
+        letter-spacing: 0.5px;
     }
 
-    /* ── Tabs/alerts ── */
-    .stAlert { border-radius: 2px !important; }
+    /* ── Footer ── */
+    .data-footer {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        color: #556677;
+        letter-spacing: 1px;
+        text-align: center;
+        padding: 1.5rem 0 0.5rem;
+        border-top: 1px solid #1e2a3a;
+        margin-top: 2rem;
+    }
 
-    /* ── Hide Streamlit branding ── */
+    .stAlert { border-radius: 0 !important; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* ── LANDING PAGE ANIMATIONS ── */
+    /* ═══ LANDING PAGE ═══ */
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
+        from { opacity: 0; transform: translateY(25px); }
         to { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from { opacity: 0; } to { opacity: 1; }
     }
-    @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-40px); }
-        to { opacity: 1; transform: translateX(0); }
+    @keyframes glowPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.1); }
+        50% { box-shadow: 0 0 30px 5px rgba(34, 211, 238, 0.08); }
     }
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(232, 89, 12, 0.2); }
-        50% { box-shadow: 0 0 20px 5px rgba(232, 89, 12, 0.15); }
-    }
-    @keyframes countUp {
-        from { opacity: 0; transform: scale(0.8); }
-        to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes shimmer {
-        0% { background-position: -200% center; }
-        100% { background-position: 200% center; }
+    @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100vh); }
     }
 
-    /* Hero section */
     .landing-hero {
         text-align: center;
-        padding: 2rem 0 1.5rem;
+        padding: 3rem 0 1.5rem;
         animation: fadeIn 0.8s ease-out;
+        position: relative;
     }
     .landing-hero h2 {
-        font-family: 'IBM Plex Sans', sans-serif !important;
-        font-size: 2.8rem !important;
-        font-weight: 700 !important;
-        color: #e5e7eb !important;
-        letter-spacing: -1.5px;
+        font-family: 'Libre Franklin', sans-serif !important;
+        font-size: 3.2rem !important;
+        font-weight: 900 !important;
+        color: #f0f4f8 !important;
+        letter-spacing: -2px;
         border: none !important;
         padding: 0 !important;
-        margin-bottom: 0.3rem !important;
-        line-height: 1.1;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.05;
+        text-transform: uppercase;
     }
-    .landing-hero .hero-accent {
-        color: #38bdf8;
+    .hero-accent {
+        background: linear-gradient(135deg, #22d3ee, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero-accent-rent {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     .landing-tagline {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 1.15rem;
-        color: #cbd5e1;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        color: #556677;
         margin-bottom: 0.5rem;
+        letter-spacing: 1px;
     }
+
     .landing-stat-row {
         display: flex;
         justify-content: center;
-        gap: 3rem;
-        margin: 1.5rem 0;
+        gap: 4rem;
+        margin: 2rem 0;
         animation: fadeInUp 0.8s ease-out 0.3s both;
     }
-    .landing-stat {
-        text-align: center;
-    }
+    .landing-stat { text-align: center; }
     .landing-stat-number {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 2rem;
+        font-family: 'Space Mono', monospace;
+        font-size: 2.2rem;
         font-weight: 700;
-        color: #38bdf8;
-        animation: countUp 0.6s ease-out 0.5s both;
+        color: #22d3ee;
     }
     .landing-stat-label {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.75rem;
-        color: #cbd5e1;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.6rem;
+        color: #556677;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-top: 2px;
+        letter-spacing: 2px;
+        margin-top: 4px;
     }
 
-    /* Divider line */
     .landing-divider {
-        width: 60px;
-        height: 3px;
-        background: #e8590c;
-        margin: 1.5rem auto;
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(90deg, #22d3ee, #f97316);
+        margin: 2rem auto;
         animation: fadeIn 1s ease-out 0.5s both;
     }
 
-    /* Steps row */
+    /* Step cards — dark theme */
     .step-card {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
-        border-radius: 2px;
+        background: #0d1117;
+        border: 1px solid #1e2a3a;
+        border-radius: 0;
         padding: 1.5rem;
         height: 100%;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
         position: relative;
         overflow: hidden;
     }
     .step-card::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #0f2b46, #e8590c);
+        top: 0; left: 0;
+        width: 100%; height: 2px;
+        background: linear-gradient(90deg, #22d3ee, #f97316);
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.4s ease;
     }
-    .step-card:hover::before {
-        transform: scaleX(1);
-    }
+    .step-card:hover::before { transform: scaleX(1); }
     .step-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(15, 43, 70, 0.08);
+        border-color: #2a3a4f;
+        box-shadow: 0 0 30px rgba(34, 211, 238, 0.06);
     }
-    .anim-1 { animation: fadeInUp 0.6s ease-out 0.2s both; }
-    .anim-2 { animation: fadeInUp 0.6s ease-out 0.4s both; }
-    .anim-3 { animation: fadeInUp 0.6s ease-out 0.6s both; }
+    .step-number {
+        font-family: 'Space Mono', monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #22d3ee;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .step-title {
+        font-family: 'Libre Franklin', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #f0f4f8;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .step-desc {
+        font-family: 'Libre Franklin', sans-serif;
+        color: #8899aa;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+    .anim-1 { animation: fadeInUp 0.5s ease-out 0.2s both; }
+    .anim-2 { animation: fadeInUp 0.5s ease-out 0.35s both; }
+    .anim-3 { animation: fadeInUp 0.5s ease-out 0.5s both; }
 
     /* City grid */
     .city-grid-title {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.75rem;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
         font-weight: 700;
-        color: #8e9baa;
+        color: #556677;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         text-align: center;
-        margin: 1.5rem 0 1rem;
-        animation: fadeIn 0.8s ease-out 0.8s both;
+        margin: 2rem 0 1rem;
     }
     .city-card {
-        background: #ffffff;
-        border: 1px solid #e1e5eb;
-        border-radius: 2px;
-        padding: 0.9rem 1rem;
+        background: #0d1117;
+        border: 1px solid #1e2a3a;
+        border-radius: 0;
+        padding: 0.8rem 1rem;
         margin-bottom: 0.5rem;
-        transition: all 0.25s ease;
+        transition: all 0.2s ease;
         cursor: default;
-        animation: fadeInUp 0.5s ease-out both;
+        animation: fadeInUp 0.4s ease-out both;
     }
     .city-card:hover {
-        border-left: 3px solid #e8590c;
-        background: #fafbfc;
-        transform: translateX(4px);
+        border-left: 3px solid #22d3ee;
+        background: #141b27;
     }
     .city-name {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-weight: 600;
-        color: #0f2b46;
-        font-size: 0.88rem;
+        font-family: 'Libre Franklin', sans-serif;
+        font-weight: 700;
+        color: #f0f4f8;
+        font-size: 0.85rem;
         margin-bottom: 2px;
     }
     .city-price {
-        font-family: 'IBM Plex Mono', monospace;
-        color: #5a6f85;
-        font-size: 0.78rem;
+        font-family: 'Space Mono', monospace;
+        color: #8899aa;
+        font-size: 0.72rem;
     }
     .city-tag {
         display: inline-block;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 0.65rem;
-        font-weight: 600;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
         padding: 2px 6px;
-        border-radius: 2px;
         margin-top: 4px;
+        letter-spacing: 1px;
     }
     .tag-college {
-        background: #eef2f7;
-        color: #0f2b46;
+        background: rgba(34, 211, 238, 0.1);
+        color: #22d3ee;
+        border: 1px solid rgba(34, 211, 238, 0.2);
     }
     .tag-metro {
-        background: #fef0e7;
-        color: #e8590c;
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+        border: 1px solid rgba(249, 115, 22, 0.2);
     }
 
-    /* CTA arrow */
     .cta-hint {
         text-align: center;
-        margin-top: 1.5rem;
+        margin-top: 2rem;
         animation: fadeIn 1s ease-out 1s both;
     }
     .cta-hint span {
-        font-family: 'IBM Plex Sans', sans-serif;
-        font-size: 0.85rem;
-        color: #8e9baa;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.75rem;
+        color: #556677;
+        letter-spacing: 0.5px;
     }
     .cta-arrow {
         display: inline-block;
-        font-size: 1.2rem;
-        color: #e8590c;
-        animation: pulse 2s infinite;
+        font-size: 1.1rem;
+        color: #22d3ee;
+        animation: glowPulse 2.5s infinite;
         margin-left: 6px;
+    }
+
+    /* ── Chat ── */
+    [data-testid="stChatMessage"] {
+        background: #0d1117 !important;
+        border: 1px solid #1e2a3a !important;
+        border-radius: 0 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -527,45 +538,6 @@ with st.sidebar:
         help="City mode will use this instead of the preset median."
     )
 
-    extras = st.expander("Owner / Renter extras (optional)", expanded=False)
-    with extras:
-        st.caption("Add fees and frictions that differ between owning and renting.")
-
-        o1, o2 = st.columns(2)
-        with o1:
-            pmi_rate_pct = st.number_input(
-                "PMI rate (%/yr)", min_value=0.0, max_value=5.0, value=0.0, step=0.05,
-                help=(
-                    "Annual PMI as a percent of the outstanding balance. "
-                    "Only applies while down payment < 20% and LTV >= 80%."
-                ),
-            )
-        with o2:
-            hoa_monthly = st.number_input(
-                "HOA / common charges ($/mo)", min_value=0.0, max_value=5_000.0, value=0.0, step=25.0,
-            )
-
-        utilities_delta = st.number_input(
-            "Extra owner utilities vs renting ($/mo)", min_value=0.0, max_value=2_000.0, value=0.0, step=10.0,
-            help="If owners pay more for utilities/upkeep than renters, enter the difference.",
-        )
-
-        r1, r2 = st.columns(2)
-        with r1:
-            renter_insurance_monthly = st.number_input(
-                "Renter's insurance ($/mo)", min_value=0.0, max_value=500.0, value=0.0, step=5.0,
-            )
-        with r2:
-            renter_security_deposit_months = st.number_input(
-                "Security deposit (months of rent)", min_value=0.0, max_value=6.0, value=1.0, step=0.5,
-                help="Deposit is returned at the end of the horizon.",
-            )
-
-        renter_broker_fee_pct = st.number_input(
-            "Broker fee (% of annual rent, upfront)", min_value=0.0, max_value=50.0, value=0.0, step=1.0,
-            help="One-time fee, charged upfront as a percent of first-year rent.",
-        )
-
     st.markdown("**What will you do with the savings?**")
     strategy_label = st.selectbox(
         "Savings discipline",
@@ -617,7 +589,7 @@ with st.sidebar:
     with comp_col2:
         compare_b_name = st.selectbox("City B", compare_city_names, index=8, key="comp_b")  # NYC default
 
-    compare_horizon = st.slider("Compare Horizon (years)", 1, 50, 10, key="comp_horizon")
+    compare_horizon = st.slider("Compare Horizon (years)", 1, 30, 10, key="comp_horizon")
     compare_button = st.button("Compare Cities", use_container_width=True)
 
 
@@ -633,23 +605,23 @@ def build_histogram(results):
     fig = go.Figure()
     fig.add_trace(go.Histogram(
         x=buy_wins, nbinsx=60, name="Buying Wins",
-        marker_color="#38bdf8", opacity=0.85,
+        marker_color="#22d3ee", opacity=0.85,
     ))
     fig.add_trace(go.Histogram(
         x=rent_wins, nbinsx=60, name="Renting Wins",
         marker_color="#f97316", opacity=0.85,
     ))
-    fig.add_vline(x=0, line_dash="dash", line_color="#e5e7eb", line_width=2)
+    fig.add_vline(x=0, line_dash="dash", line_color="#f0f4f8", line_width=2)
     fig.update_layout(
-        title=dict(text="DISTRIBUTION OF OUTCOMES", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
+        title=dict(text="DISTRIBUTION OF OUTCOMES", font=dict(family="Libre Franklin, sans-serif", size=13, color="#f0f4f8")),
         xaxis_title="Net Wealth Difference (Buy − Rent)",
         yaxis_title="Simulations",
         barmode="overlay", height=400,
-        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
+        paper_bgcolor="#07090f", plot_bgcolor="#0d1117",
+        font=dict(family="Libre Franklin, sans-serif", size=11, color="#f0f4f8"),
         legend=dict(x=0.02, y=0.98, font=dict(size=10)),
-        xaxis=dict(tickformat="$,.0f", gridcolor="#1f2937", zerolinecolor="#e5e7eb"),
-        yaxis=dict(gridcolor="#1f2937"),
+        xaxis=dict(tickformat="$,.0f", gridcolor="#1e2a3a", zerolinecolor="#f0f4f8"),
+        yaxis=dict(gridcolor="#1e2a3a"),
         margin=dict(t=40, b=40, l=50, r=20),
     )
     return fig
@@ -665,7 +637,7 @@ def build_wealth_over_time(results):
     fig.add_trace(go.Scatter(
         x=years + years[::-1],
         y=results["buy_p75_trajectory"] + results["buy_p25_trajectory"][::-1],
-        fill="toself", fillcolor="rgba(56, 189, 248, 0.12)",
+        fill="toself", fillcolor="rgba(34, 211, 238, 0.12)",
         line=dict(color="rgba(0,0,0,0)"), showlegend=False,
     ))
     # Rent confidence band
@@ -679,7 +651,7 @@ def build_wealth_over_time(results):
     fig.add_trace(go.Scatter(
         x=years, y=results["buy_median_trajectory"],
         mode="lines", name="Buy (Median)",
-        line=dict(color="#38bdf8", width=3),
+        line=dict(color="#22d3ee", width=3),
     ))
     fig.add_trace(go.Scatter(
         x=years, y=results["rent_median_trajectory"],
@@ -688,14 +660,14 @@ def build_wealth_over_time(results):
     ))
 
     fig.update_layout(
-        title=dict(text="WEALTH OVER TIME", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
+        title=dict(text="WEALTH OVER TIME", font=dict(family="Libre Franklin, sans-serif", size=13, color="#f0f4f8")),
         xaxis_title="Year", yaxis_title="Net Wealth ($)",
         height=400,
-        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
+        paper_bgcolor="#07090f", plot_bgcolor="#0d1117",
+        font=dict(family="Libre Franklin, sans-serif", size=11, color="#f0f4f8"),
         legend=dict(x=0.02, y=0.98, font=dict(size=10)),
-        yaxis=dict(tickformat="$,.0f", gridcolor="#1f2937"),
-        xaxis=dict(gridcolor="#1f2937"),
+        yaxis=dict(tickformat="$,.0f", gridcolor="#1e2a3a"),
+        xaxis=dict(gridcolor="#1e2a3a"),
         margin=dict(t=40, b=40, l=60, r=20),
     )
     return fig
@@ -724,17 +696,17 @@ def build_sensitivity_chart(sensitivity):
         marker_color=colors,
         text=[f"{v:+.3f}" for v in values],
         textposition="outside",
-        textfont=dict(family="IBM Plex Mono, Courier New, monospace", size=11, color="#1a2a3a"),
+        textfont=dict(family="Space Mono, monospace", size=11, color="#1a2a3a"),
     ))
     fig.update_layout(
-        title=dict(text="SENSITIVITY ANALYSIS", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=13, color="#e5e7eb")),
+        title=dict(text="SENSITIVITY ANALYSIS", font=dict(family="Libre Franklin, sans-serif", size=13, color="#f0f4f8")),
         xaxis_title="Correlation with Outcome",
         height=380,
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
+        font=dict(family="Libre Franklin, sans-serif", size=11, color="#f0f4f8"),
         yaxis=dict(autorange="reversed"),
-        xaxis=dict(zeroline=True, zerolinecolor="#e5e7eb", zerolinewidth=1,
-               gridcolor="#1f2937"),
+        xaxis=dict(zeroline=True, zerolinecolor="#f0f4f8", zerolinewidth=1,
+               gridcolor="#1e2a3a"),
         margin=dict(t=40, b=40, l=120, r=20),
     )
     return fig
@@ -846,11 +818,7 @@ Reply with 3-5 sentences, cite key numbers, and stay anchored to this scenario. 
     # MAIN DISPLAY
 
 # Build a key for the current sidebar settings
-current_scenario_key = (
-    f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|"
-    f"{strategy_label}|{buyer_invest}|{renter_invest}|{pmi_rate_pct}|{hoa_monthly}|{utilities_delta}|"
-    f"{renter_insurance_monthly}|{renter_security_deposit_months}|{renter_broker_fee_pct}"
-)
+current_scenario_key = f"{selected_city_key}|{home_price}|{monthly_rent_input}|{down_payment_pct}|{mortgage_rate}|{mortgage_term}|{time_horizon}|{strategy_label}|{buyer_invest}|{renter_invest}"
 
 results = None
 compare_active = False
@@ -872,20 +840,12 @@ if compare_button:
             mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
             time_horizon_years=compare_horizon, distributions=dist,
             invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
-            pmi_rate=pmi_rate_pct / 100, hoa_monthly=hoa_monthly, utilities_delta=utilities_delta,
-            renter_insurance_monthly=renter_insurance_monthly,
-            renter_security_deposit_months=renter_security_deposit_months,
-            renter_broker_fee_pct=renter_broker_fee_pct / 100,
         )
         results_b = run_for_city(
             city_key=key_b, down_payment_pct=down_payment_pct / 100,
             mortgage_rate=mortgage_rate / 100, mortgage_term_years=mortgage_term,
             time_horizon_years=compare_horizon, distributions=dist,
             invest_surplus=False, buyer_invest_surplus=buyer_invest, renter_invest_surplus=renter_invest,
-            pmi_rate=pmi_rate_pct / 100, hoa_monthly=hoa_monthly, utilities_delta=utilities_delta,
-            renter_insurance_monthly=renter_insurance_monthly,
-            renter_security_deposit_months=renter_security_deposit_months,
-            renter_broker_fee_pct=renter_broker_fee_pct / 100,
         )
 
     st.markdown("## City Comparison")
@@ -934,7 +894,7 @@ if compare_button:
         name=compare_a_name,
         x=categories,
         y=[results_a["buy_wins_pct"], results_a["median_buy"], results_a["median_rent"]],
-        marker_color="#38bdf8",
+        marker_color="#22d3ee",
         text=[f"{results_a['buy_wins_pct']:.0f}%", f"${results_a['median_buy']:,.0f}", f"${results_a['median_rent']:,.0f}"],
         textposition="outside",
     ))
@@ -947,11 +907,11 @@ if compare_button:
         textposition="outside",
     ))
     fig_compare.update_layout(
-        title=dict(text="HEAD TO HEAD", font=dict(family="IBM Plex Sans, Arial, sans-serif", size=14, color="#e5e7eb")),
+        title=dict(text="HEAD TO HEAD", font=dict(family="Libre Franklin, sans-serif", size=14, color="#f0f4f8")),
         barmode="group", height=400,
-        paper_bgcolor="#0b1220", plot_bgcolor="#0b1220",
-        font=dict(family="IBM Plex Sans, Arial, sans-serif", size=11, color="#e5e7eb"),
-        yaxis=dict(gridcolor="#1f2937", tickformat=",.0f"),
+        paper_bgcolor="#07090f", plot_bgcolor="#0d1117",
+        font=dict(family="Libre Franklin, sans-serif", size=11, color="#f0f4f8"),
+        yaxis=dict(gridcolor="#1e2a3a", tickformat=",.0f"),
         legend=dict(font=dict(size=12)),
     )
     st.plotly_chart(fig_compare, use_container_width=True)
@@ -970,14 +930,7 @@ elif run_button:
                 invest_surplus=False,
                 buyer_invest_surplus=buyer_invest,
                 renter_invest_surplus=renter_invest,
-                home_price_override=home_price,
                 monthly_rent_override=monthly_rent_input,
-                pmi_rate=pmi_rate_pct / 100,
-                hoa_monthly=hoa_monthly,
-                utilities_delta=utilities_delta,
-                renter_insurance_monthly=renter_insurance_monthly,
-                renter_security_deposit_months=renter_security_deposit_months,
-                renter_broker_fee_pct=renter_broker_fee_pct / 100,
             )
         else:
             results = run_custom(
@@ -991,12 +944,6 @@ elif run_button:
                 invest_surplus=False,
                 buyer_invest_surplus=buyer_invest,
                 renter_invest_surplus=renter_invest,
-                pmi_rate=pmi_rate_pct / 100,
-                hoa_monthly=hoa_monthly,
-                utilities_delta=utilities_delta,
-                renter_insurance_monthly=renter_insurance_monthly,
-                renter_security_deposit_months=renter_security_deposit_months,
-                renter_broker_fee_pct=renter_broker_fee_pct / 100,
             )
 
     # Cache the latest run so chat interactions don't drop back to landing
@@ -1137,7 +1084,7 @@ elif not compare_active:
     # Hero section
     st.markdown("""
     <div class="landing-hero">
-        <h2>Should you <span class="hero-accent">rent</span> or <span class="hero-accent">buy</span>?</h2>
+        <h2>Should you <span class="hero-accent-rent">rent</span> or <span class="hero-accent">buy</span>?</h2>
         <div class="landing-tagline">Stop guessing. Start simulating.</div>
     </div>
     """, unsafe_allow_html=True)
